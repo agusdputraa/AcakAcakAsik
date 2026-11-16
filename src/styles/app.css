@@ -185,27 +185,21 @@
  .desktop-controls {flex-shrink:0;}
  .desktop-left-rail .settings-surface {max-height:none;box-shadow:0 8px 24px #213b2518;}
  .desktop-left-rail .settings-content {overflow:visible;}
- .desktop-left-rail .camera-sidebar {position:static;width:100%;max-height:none;flex-shrink:0;padding:16px;box-shadow:0 8px 24px #213b2518;}
- .results-sidebar {position:fixed;z-index:20;right:24px;top:88px;bottom:38px;width:300px;display:flex;flex-direction:column;gap:16px;overflow:hidden;padding:18px;border:1px solid #ffffffd9;border-radius:20px;background:#fbfdfbf5;box-shadow:0 8px 24px #213b2518;}
- .results-sidebar>div.overflow-y-auto {min-height:0;flex:1;}
- .results-sidebar .sm\:grid-cols-2 {grid-template-columns:1fr;}
- .results-sidebar [data-slot="dialog-footer"] {flex-direction:column;}
  .arena-status {top:80px;max-width:calc(100vw - 680px);}
  .quick-actions button:first-child {display:none;}
  .fallback-badge {left:50%;transform:translateX(-50%);bottom:34px;}
 }
-@media(min-width:1400px){.desktop-left-rail,.results-sidebar{width:340px;}.arena-status{max-width:calc(100vw - 760px);}}
 @media(max-width:767px){.developer-credit{bottom:0;font-size:9px;}}
 @media(min-width:768px){
- .desktop-left-rail{display:grid;grid-template-rows:minmax(0,1.6fr) minmax(0,1fr);overflow:hidden;}
+ .desktop-left-rail{display:grid;grid-template-rows:minmax(0,1fr);overflow:hidden;}
  .desktop-controls,.desktop-left-rail .settings-surface{height:100%;min-height:0;}
  .desktop-left-rail .settings-content{overflow-y:auto;}
- .desktop-left-rail .camera-sidebar{min-height:0;overflow-y:auto;}
 }
 @media(min-width:768px){
  .desktop-left-rail .settings-surface{border-radius:20px;background:#fbfdfbf5;overflow:hidden;}
  .desktop-left-rail .settings-heading{padding:14px 16px;flex-shrink:0;}
  .desktop-left-rail .settings-content{padding:16px;flex:1;}
  .desktop-left-rail .settings-surface>div:last-child{padding:12px 16px;flex-shrink:0;background:var(--background);}
- .desktop-left-rail .camera-sidebar{border-radius:20px;padding:16px;}
 }
+
+@media(min-width:1400px){.desktop-left-rail,.camera-sidebar{width:340px;}.arena-status{max-width:calc(100vw - 760px);}}

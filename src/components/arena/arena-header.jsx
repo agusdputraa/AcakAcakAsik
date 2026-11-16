@@ -1,9 +1,9 @@
-import { Check, ChevronDown, Camera, Volume2, VolumeX } from 'lucide-react'
+import { Check, ChevronDown, Camera, Trophy, Volume2, VolumeX } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { modes } from './modes'
 
-export function ArenaHeader({ view, actions, onCamera }) {
+export function ArenaHeader({ view, actions, onCamera, onResults, hasResults }) {
   const active = modes[view.mode]
   const ModeIcon = active.icon
   const AudioIcon = view.muted ? VolumeX : Volume2
@@ -38,6 +38,7 @@ export function ArenaHeader({ view, actions, onCamera }) {
         <Button type="button" variant="outline" size="icon" aria-label={view.muted ? 'Aktifkan suara' : 'Matikan suara'} title={view.muted ? 'Aktifkan suara' : 'Matikan suara'} onClick={() => actions?.toggleAudio()} disabled={!actions}>
           <AudioIcon />
         </Button>
+        <Button type="button" variant="outline" size="icon" aria-label="Tampilkan hasil" title="Tampilkan hasil" onClick={onResults} disabled={!hasResults}><Trophy /></Button>
       </div>
     </header>
   )

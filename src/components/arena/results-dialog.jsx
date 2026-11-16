@@ -1,4 +1,3 @@
-import { useSyncExternalStore } from 'react'
 import { formatGroups } from '@/lib/group-format'
 import { Copy, Flag, Trophy, Users } from 'lucide-react'
 import { toast } from 'sonner'
@@ -8,11 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 const number = new Intl.NumberFormat('id-ID', { minimumFractionDigits: 3, maximumFractionDigits: 3 })
 const finishTime = time => `${number.format(time)} detik`
 
-const query=()=>window.matchMedia('(max-width: 767px)')
-const subscribe=cb=>{const q=query();q.addEventListener('change',cb);return()=>q.removeEventListener('change',cb)}
-
-export function ResultsDialog({ result, onClose }) {
-  const mobile=useSyncExternalStore(subscribe,()=>query().matches)
+export function ResultsDialog({ result, open, onClose }) {
   const race = result?.kind === 'race'
   const title = race ? 'Hasil Balap Lari' : 'Hasil Pembagian Kelompok'
   const Icon = race ? Trophy : Users
@@ -70,6 +65,5 @@ export function ResultsDialog({ result, onClose }) {
           <Button type="button" onClick={onClose}><Flag /> Kembali ke Arena</Button>
         </DialogFooter>
   </>
-  if(!mobile)return <aside className="results-sidebar" aria-label="Hasil arena">{result ? content : <><h2 className="font-bold">Hasil arena</h2><p className="text-sm text-muted-foreground">Hasil Grup dan Urutan akan tampil di sini setelah seluruh peserta selesai.</p></>}</aside>
-  return <Dialog open={!!result} onOpenChange={open=>{if(!open)onClose()}}><DialogContent aria-describedby={undefined} className="max-h-[86dvh] grid-rows-[auto_minmax(0,1fr)_auto] select-text overflow-hidden rounded-2xl sm:max-w-lg"><DialogTitle className="sr-only">{title}</DialogTitle>{content}</DialogContent></Dialog>
+  return <Dialog open={open && !!result} onOpenChange={open=>{if(!open)onClose()}}><DialogContent aria-describedby={undefined} className="max-h-[86dvh] grid-rows-[auto_minmax(0,1fr)_auto] select-text overflow-hidden rounded-2xl sm:max-w-lg"><DialogTitle className="sr-only">{title}</DialogTitle>{content}</DialogContent></Dialog>
 }

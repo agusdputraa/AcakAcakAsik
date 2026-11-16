@@ -19,6 +19,11 @@ export default function App() {
   const fireworks = useRef(null)
   const [view, setView] = useState(initialView)
   const [actions, setActions] = useState(null)
+  const [lastResult, setLastResult] = useState(null)
+  const [resultsOpen, setResultsOpen] = useState(false)
+  useEffect(() => {
+    if (view.result) { setLastResult(view.result); setResultsOpen(true) }
+  }, [view.result])
   const [cameraOpen,setCameraOpen]=useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
 
@@ -54,15 +59,15 @@ export default function App() {
       <div id="canvas-container" ref={canvas} aria-label="Arena permainan" />
       <div id="labels-container" ref={labels} aria-hidden="true" />
       <canvas id="fireworks-canvas" ref={fireworks} aria-hidden="true" />
-      <ArenaHeader view={view} actions={actions} onCamera={()=>setCameraOpen(true)} />
+      <ArenaHeader view={view} actions={actions} onCamera={()=>setCameraOpen(true)} onResults={()=>setResultsOpen(true)} hasResults={!!lastResult} />
 
       <ArenaOverlays actions={actions} view={view} onDismissWinner={() => actions?.hideWinnerCelebration()} />
       <div className="desktop-left-rail">
         <ControlPanel view={view} actions={actions} open={settingsOpen} setOpen={setSettingsOpen} />
-        <CameraPanel view={view} actions={actions} open={cameraOpen} setOpen={setCameraOpen}/>
       </div>
+      <CameraPanel view={view} actions={actions} open={cameraOpen} setOpen={setCameraOpen}/>
       <footer className="developer-credit">© {new Date().getFullYear()} · Developed by Agus Dzuriana</footer>
-      <ResultsDialog result={view.result} onClose={() => actions?.closeResults()} />
+      <ResultsDialog result={lastResult} open={resultsOpen} onClose={() => { setResultsOpen(false); actions?.closeResults() }} />
       <Toaster position="top-right" offset={{ top: 80, right: 24 }} mobileOffset={{ top: 120, left: 12, right: 12 }} richColors />
     </main>
   )

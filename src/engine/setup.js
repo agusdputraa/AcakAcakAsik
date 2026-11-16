@@ -72,7 +72,12 @@ export function attachSetup(engine) {
     dirLight.shadow.camera.top = dShadow;
     dirLight.shadow.camera.bottom = -dShadow;
     dirLight.shadow.bias = -0.0005;
+    dirLight.shadow.normalBias = .025;
+    dirLight.shadow.radius = 3;
     scene.add(dirLight);
+    const fillLight = new THREE.DirectionalLight(0xdceaff, .32);
+    fillLight.position.set(-16, 12, -8);
+    scene.add(fillLight);
 
     const groundGeo = new THREE.CylinderGeometry(80, 80, 1, 48);
     const groundMat = new THREE.MeshStandardMaterial({ color: 0x91ba81, roughness: 0.88 });
