@@ -1,9 +1,8 @@
 import { randomUnit } from './random.js'
 import { parseGroups } from '../lib/group-format.js'
 
-export const CIRCUIT_X = 18;
-export const CIRCUIT_Z = 11;
-export const CIRCUIT_LENGTH = 2 * Math.PI * Math.sqrt((CIRCUIT_X ** 2 + CIRCUIT_Z ** 2) / 2);
+import { CIRCUIT_LENGTH } from './race-path.js'
+export { CIRCUIT_X, CIRCUIT_Z, CIRCUIT_LENGTH } from './race-path.js'
 export function raceGroups(state) {
     if (state.raceListType === 'individual') {
         return state.raceNames.split(/\r?\n/).map(name => name.trim()).filter(Boolean)

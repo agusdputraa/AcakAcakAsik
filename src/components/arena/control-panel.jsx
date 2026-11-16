@@ -1,5 +1,5 @@
 import { useState, useSyncExternalStore } from 'react'
-import { ChevronDown, ChevronUp, Settings2, X } from 'lucide-react'
+import { ChevronDown, ChevronUp, Settings2, X, SkipForward } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer'
 import { ModeSettings } from './mode-settings'
@@ -21,7 +21,7 @@ export function ControlPanel({ view, actions, open, setOpen }) {
   const settings = actions && (
     <div className="settings-content">
       <ModeSettings view={view} actions={actions} />
-      {view.mode !== 'race' && <ParticipantPanel view={view} actions={actions} tab={tab} onTabChange={setTab} />}
+      {!['race','topics','choices'].includes(view.mode) && <ParticipantPanel view={view} actions={actions} tab={tab} onTabChange={setTab} />}
     </div>
   )
 
@@ -34,9 +34,11 @@ export function ControlPanel({ view, actions, open, setOpen }) {
     )
   }
 
-  const startButton = (
+  const startButton = view.mode === 'race' && view.racePhase === 'running' ? (
+    <Button type="button" className="start-button" onClick={()=>actions?.skipRace()} disabled={!actions}><SkipForward/>Skip ke hasil</Button>
+  ) : (
     <Button type="button" onClick={() => actions?.start()} disabled={!actions || view.isBusy} className="start-button">
-      <ModeIcon />{view.isBusy ? 'Sedang berjalan…' : action}
+      <ModeIcon />{view.isBusy ? (view.mode==='choices'?'Sedang mengacak…':'Sedang berjalan…') : view.mode === 'race' ? (view.racePhase === 'ready' ? 'Mulai lari' : 'Pergi ke lapangan') : action}
     </Button>
   )
 

@@ -10,6 +10,8 @@ export function attachState(engine) {
         countdown: null,
         mode: 'groups', // 'groups' | 'single' | 'individual' | 'race'
         singleType: 'spotlight',
+        choicesText: 'Pilihan 1\nPilihan 2\nPilihan 3\nPilihan 4', choicesWinner: null,
+        topicsPhase: 'idle',
         excludedIds: [],
         raceListType: 'only-groups', raceGroupCount: 3, raceNames: initialNames.join('\n'),
         raceGroupsText: '', laps: 1, cameraMode: 'track', cameraTarget: null, cameraSide: 'rear',
@@ -22,6 +24,8 @@ export function attachState(engine) {
         pendingGroupsResult: null,
 
         // Race specific state
+        racePhase: 'waiting', raceCameraView: 'waiting',
+        topicsText: 'Lingkungan\nTeknologi\nKesehatan\nPendidikan',
         raceRunners: [],
         raceActive: false,
         raceElapsed: 0,
@@ -43,6 +47,8 @@ export function attachState(engine) {
         try {
             const payload = {
                 mode: state.mode,
+                topicsText: state.topicsText,
+                choicesText: state.choicesText,
                 singleType: state.singleType, excludedIds: state.excludedIds,
                 raceListType: state.raceListType, raceGroupCount: state.raceGroupCount, raceNames: state.raceNames, raceGroupsText: state.raceGroupsText, laps: state.laps,
                 groupCount: state.groupCount,
@@ -60,13 +66,13 @@ export function attachState(engine) {
             if (!savedRaw) return;
             const parsed = JSON.parse(savedRaw);
             if (parsed && typeof parsed === 'object') {
-                if (['groups', 'single', 'individual', 'race'].includes(parsed.mode)) {
+                if (['groups', 'single', 'individual', 'race', 'topics', 'choices'].includes(parsed.mode)) {
                     state.mode = parsed.mode === 'individual' ? 'single' : parsed.mode;
                 }
                 if (['spotlight', 'mc'].includes(parsed.singleType)) state.singleType = parsed.singleType;
                 if (Array.isArray(parsed.excludedIds)) state.excludedIds = parsed.excludedIds;
                 if (['only-groups','group-members','individual'].includes(parsed.raceListType)) state.raceListType = parsed.raceListType;
-                for (const key of ['raceNames','raceGroupsText']) if (typeof parsed[key] === 'string') state[key] = parsed[key];
+                for (const key of ['raceNames','raceGroupsText','topicsText','choicesText']) if (typeof parsed[key] === 'string') state[key] = parsed[key];
                 if (Number.isInteger(parsed.laps)) state.laps = Math.max(1, Math.min(10, parsed.laps));
                 if (Number.isInteger(parsed.raceGroupCount)) state.raceGroupCount = Math.max(2, Math.min(12, parsed.raceGroupCount));
                 if (typeof parsed.groupCount === 'number' && parsed.groupCount >= 2 && parsed.groupCount <= 8) {

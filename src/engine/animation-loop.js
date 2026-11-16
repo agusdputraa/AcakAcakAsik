@@ -31,7 +31,7 @@ export function attachAnimationLoop(engine) {
             }
 
             entity.walkCycle += dt * entity.speed * 2.3;
-            animateCharacter(parts, entity.walkCycle, entity.isMoving);
+            animateCharacter(parts, entity.walkCycle, entity.isMoving, engine.state.mode === 'topics');
             parts.root.position.copy(entity.pos);
         } else {
             entity.isMoving = false;
@@ -76,6 +76,10 @@ export function attachAnimationLoop(engine) {
             engine.updateRaceSimulation(dt);
         }
 
+        if (engine.state.mode === 'race' && engine.state.racePhase === 'walking' && !anyParticipantStillRunning) {
+            engine.finishRaceWalk();
+        }
+
         if (engine.state.waitingForGroupArrival && !anyParticipantStillRunning) {
             engine.state.groupArrivalDwellTimer += dt;
             if (engine.state.groupArrivalDwellTimer >= 0.55) {
@@ -85,6 +89,9 @@ export function attachAnimationLoop(engine) {
                 if (finishedGroups) engine.finalizeGroupDivisionArrival(finishedGroups);
             }
         }
+
+        if (engine.state.mode === 'topics') engine.updateTopicSimulation(anyParticipantStillRunning);
+        if (engine.state.mode === 'choices') engine.updateChoiceSimulation(dt);
 
         if (engine.mcEntity && engine.stageEnvGroup.visible) {
             updateCharacterLocomotion(engine.mcEntity, dt, elapsedTime);

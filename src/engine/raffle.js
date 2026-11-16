@@ -24,7 +24,9 @@ export function attachRaffle(engine) {
             engine.mcEntity.waypoints = [];
             engine.mcEntity.isMoving = false;
             engine.mcEntity.celebrating = false;
-            engine.mcEntity.pos.set(0, engine.STAGE_TOP_Y, engine.STAGE_Z + 1.2);
+            if(engine.state.mode==='choices')engine.mcEntity.pos.set(-6.1,.12,engine.STAGE_Z+3.8);
+            else engine.mcEntity.pos.set(0, engine.STAGE_TOP_Y, engine.STAGE_Z + 1.2);
+            if(engine.mcEntity.labelEl)engine.mcEntity.labelEl.textContent=engine.state.mode==='choices'?'🎤 Host':'🎤 MC Panggung';
             engine.mcEntity.meshParts.root.position.copy(engine.mcEntity.pos);
             engine.mcEntity.meshParts.root.rotation.y = 0;
         }

@@ -8,8 +8,9 @@ const number = new Intl.NumberFormat('id-ID', { minimumFractionDigits: 3, maximu
 const finishTime = time => `${number.format(time)} detik`
 
 export function ResultsDialog({ result, open, onClose }) {
+  const topics = result?.kind === 'topics'
   const race = result?.kind === 'race'
-  const title = race ? 'Hasil Balap Lari' : 'Hasil Pembagian Kelompok'
+  const title = race ? 'Hasil Balap Lari' : topics ? 'Hasil Pembagian Topik' : 'Hasil Pembagian Kelompok'
   const Icon = race ? Trophy : Users
 
   async function copy() {
@@ -20,7 +21,7 @@ export function ResultsDialog({ result, open, onClose }) {
         : `${item.name} · ${people}`
     })
     try {
-      await navigator.clipboard.writeText(race ? [title, ...lines].join('\n') : formatGroups(result.entries))
+      await navigator.clipboard.writeText((race || topics) ? [title, ...lines].join('\n') : formatGroups(result.entries))
       toast.success('Hasil berhasil disalin!')
     } catch {
       toast.error('Browser tidak mengizinkan menyalin hasil.')
@@ -31,7 +32,7 @@ export function ResultsDialog({ result, open, onClose }) {
         <DialogHeader className="text-left">
           <div className={`result-symbol ${race ? 'race-symbol' : ''}`}><Icon /></div>
           <h2 className="text-lg font-bold">{title}</h2>
-          <p className="text-sm text-muted-foreground">{race ? 'Waktu kelompok adalah waktu anggota terakhir menyelesaikan seluruh lap.' : `${result?.entries.length ?? 0} kelompok terbentuk.`}</p>
+          <p className="text-sm text-muted-foreground">{race ? 'Waktu kelompok adalah waktu anggota terakhir menyelesaikan seluruh lap.' : topics ? 'Kelompok atau individu dan topik yang diterima.' : `${result?.entries.length ?? 0} kelompok terbentuk.`}</p>
         </DialogHeader>
         <div className="overflow-y-auto pr-1">
           {race ? (
@@ -52,6 +53,7 @@ export function ResultsDialog({ result, open, onClose }) {
               {result?.entries.map(item => (
                 <section key={item.index} className="result-card group-card" style={{ '--group-color': item.color }}>
                   <h3 className="flex items-center gap-2 text-sm font-bold"><span className="group-color" />{item.name}</h3>
+                  {topics && !item.members.length && <p className="mt-2 text-xs text-muted-foreground">Belum mendapat peserta</p>}
                   <ol className="mt-2 list-inside list-decimal break-words text-sm text-muted-foreground">
                     {item.members.map((name, index) => <li key={index}>{name}</li>)}
                   </ol>

@@ -203,3 +203,6 @@
 }
 
 @media(min-width:1400px){.desktop-left-rail,.camera-sidebar{width:340px;}.arena-status{max-width:calc(100vw - 760px);}}
+
+.race-camera-shortcuts{position:fixed;z-index:30;top:114px;left:50%;transform:translateX(-50%);display:flex;gap:6px;padding:5px;border-radius:14px;background:#ffffffe6;box-shadow:0 4px 16px #213b2518;}
+@media(max-width:767px){.race-camera-shortcuts{top:110px;}}

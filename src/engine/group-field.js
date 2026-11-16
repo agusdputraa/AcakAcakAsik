@@ -117,13 +117,16 @@ export function attachGroupField(engine) {
         return tex;
     }
 
-    function rebuildGroupZones(count) {
+    function rebuildGroupZones(count, names = []) {
         while (groupZonesContainer.children.length > 0) {
-            groupZonesContainer.remove(groupZonesContainer.children[0]);
+            const old = groupZonesContainer.children[0];
+            engine.disposeSceneObjects?.(old);
+            groupZonesContainer.remove(old);
         }
         engine.groupZoneData = [];
 
         const layouts = {
+            1: [[0, 0]],
             2: [[-9.5, 0], [9.5, 0]],
             3: [[-10, -5.2], [10, -5.2], [0, 6.2]],
             4: [[-10, -5.5], [10, -5.5], [-10, 5.5], [10, 5.5]],
@@ -169,13 +172,14 @@ export function attachGroupField(engine) {
             for (const border of [topB, botB, leftB, rightB]) border.userData.fallbackLayer = -1;
             zoneGroup.add(topB, botB, leftB, rightB);
 
-            const signTex = createSignTexture(theme.name, theme.hex, 54);
+            const name = names[idx] || theme.name;
+            const signTex = createSignTexture(name, theme.hex, Math.min(54, 640 / Math.max(12, name.length)));
             const signBoard = new THREE.Mesh(
                 new THREE.BoxGeometry(3.4, 0.95, 0.14),
                 new THREE.MeshStandardMaterial({ map: signTex, roughness: 0.4 })
             );
             const signZ = cz < 0 ? -boxD / 2 - 0.45 : boxD / 2 + 0.45;
-            signBoard.userData.fallbackSign = theme.name;
+            signBoard.userData.fallbackSign = name;
             signBoard.userData.fallbackColor = theme.hex;
             signBoard.position.set(0, 1.2, signZ);
             zoneGroup.add(signBoard);
@@ -190,7 +194,7 @@ export function attachGroupField(engine) {
             groupZonesContainer.add(zoneGroup);
             engine.groupZoneData.push({
                 index: idx,
-                name: theme.name,
+                name,
                 theme,
                 center: new THREE.Vector3(cx, 0, cz),
                 width: boxW - 1.1,

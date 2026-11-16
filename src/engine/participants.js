@@ -11,7 +11,7 @@ export function attachParticipants(engine) {
     }
 
     function getInitialFormationPosition(index, total, mode) {
-        if (mode === 'groups') {
+        if (mode === 'groups' || mode === 'topics') {
             const angle = (index / Math.max(total, 1)) * Math.PI * 2;
             const radius = 2.0 + (index % 3) * 1.15;
             return new THREE.Vector3(Math.cos(angle) * radius, 0.12, Math.sin(angle) * radius);
@@ -50,7 +50,9 @@ export function attachParticipants(engine) {
         }
 
         const groups = raceGroups(engine.state);
-        const activeList = engine.state.mode === 'race' ? groups.flatMap((g, gi) => g.members.map((name, mi) => ({id: `${g.id}-${mi}`,name, groupId:g.id, groupName:g.name, groupIndex:gi}))) : engine.state.masterParticipants.filter(p => !engine.state.excludedIds.includes(p.id));
+        const activeList = engine.state.mode==='choices'
+            ? Array.from({length:12},(_,index)=>({id:'audience-'+index,name:'Penonton '+(index+1),isAudience:true}))
+            : ['race','topics'].includes(engine.state.mode) ? groups.flatMap((g, gi) => g.members.map((name, mi) => ({id: `${g.id}-${mi}`,name, groupId:g.id, groupName:g.name, groupIndex:gi}))) : engine.state.masterParticipants.filter(p => !engine.state.excludedIds.includes(p.id));
         const count = activeList.length;
 
         activeList.forEach((participantObj, idx) => {

@@ -5,7 +5,7 @@ import { attachRaceTrack } from '../src/engine/race-track.js';
 import { attachState } from '../src/engine/state.js';
 test('follow translates the camera without discarding user orbit, zoom or pan; reset restores side',()=>{
  const person={id:'a',pos:new THREE.Vector3(2,.13,3),meshParts:{root:{rotation:{y:Math.PI/2}}}};
- const engine={raceEnvGroup:new THREE.Group(),state:{cameraMode:'follow',cameraTarget:'a',cameraSide:'rear'},participantEntities:[person],camera:new THREE.PerspectiveCamera(),cameraAnim:{active:false},controls:{target:new THREE.Vector3(),update(){}}};
+ const engine={createSignTexture:()=>new THREE.Texture(),raceEnvGroup:new THREE.Group(),state:{cameraMode:'follow',cameraTarget:'a',cameraSide:'rear'},participantEntities:[person],camera:new THREE.PerspectiveCamera(),cameraAnim:{active:false},controls:{target:new THREE.Vector3(),update(){}}};
  attachRaceTrack(engine);engine.resetFollowCamera();
  engine.camera.position.set(12,10,8);engine.controls.target.set(3,2,4);
  const offset=engine.camera.position.clone().sub(engine.controls.target);

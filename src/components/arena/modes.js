@@ -1,2 +1,2 @@
-import { Users, User, ListOrdered, Sparkles } from 'lucide-react'
-export const modes={single:{label:'Single',action:'Pilih satu orang',icon:Sparkles},groups:{label:'Grup',action:'Bagi kelompok',icon:Users},race:{label:'Urutan',action:'Mulai balapan',icon:ListOrdered}}
+import { Users, User, ListOrdered, Sparkles, BookOpen, ListVideo } from 'lucide-react'
+export const modes={single:{label:'Single',action:'Pilih satu orang',icon:Sparkles},groups:{label:'Grup',action:'Bagi kelompok',icon:Users},race:{label:'Urutan',action:'Mulai lari',icon:ListOrdered},topics:{label:'Topik',action:'Bagikan topik',icon:BookOpen},choices:{label:'Pilihan',action:'Acak pilihan',icon:ListVideo}}

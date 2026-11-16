@@ -66,6 +66,7 @@ export function attachRaffleStage(engine) {
         bannerMesh.userData.fallbackColor = '#4f46e5';
         bannerMesh.position.set(0, STAGE_TOP_Y + 3.65, STAGE_Z - 3.0);
         engine.stageEnvGroup.add(bannerMesh);
+        engine.stageBanner = bannerMesh;
 
         const beamGeo = new THREE.CylinderGeometry(0.35, 1.85, 11, 24, 1, true);
         const beamMat = new THREE.MeshBasicMaterial({

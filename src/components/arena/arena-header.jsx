@@ -1,4 +1,4 @@
-import { Check, ChevronDown, Camera, Trophy, Volume2, VolumeX } from 'lucide-react'
+import { Check, ChevronDown, Camera, Trophy, Volume2, VolumeX, RectangleHorizontal, Users } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { modes } from './modes'
@@ -8,7 +8,7 @@ export function ArenaHeader({ view, actions, onCamera, onResults, hasResults }) 
   const ModeIcon = active.icon
   const AudioIcon = view.muted ? VolumeX : Volume2
   return (
-    <header className="arena-header">
+    <><header className="arena-header">
       <div className="arena-brand">
         <div className="brand-mark" aria-hidden="true"><i /><i /><i /></div>
         <h1>Acak Acak <span>Asik</span></h1>
@@ -41,5 +41,10 @@ export function ArenaHeader({ view, actions, onCamera, onResults, hasResults }) 
         <Button type="button" variant="outline" size="icon" aria-label="Tampilkan hasil" title="Tampilkan hasil" onClick={onResults} disabled={!hasResults}><Trophy /></Button>
       </div>
     </header>
+    {view.mode==='race' && <nav className="race-camera-shortcuts" aria-label="Sudut kamera Urutan">
+      {[['track','Lintasan lari',RectangleHorizontal],['waiting','Area tunggu',Users]].map(([value,label,Icon])=>
+        <Button key={value} variant={view.cameraMode==='track' && view.raceCameraView===value?'default':'outline'} size="icon" aria-label={label} aria-pressed={view.cameraMode==='track' && view.raceCameraView===value} title={label} disabled={!actions} onClick={()=>actions.setRaceOption('raceCameraView',value)}><Icon/></Button>
+      )}
+    </nav>}</>
   )
 }

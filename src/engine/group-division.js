@@ -85,6 +85,7 @@ export function attachGroupDivision(engine) {
     }
 
     function finalizeGroupDivisionArrival(groups) {
+        if (engine.state.mode === 'topics') return engine.finalizeTopicArrival(groups);
         engine.sfx.playFanfare();
         engine.launchFireworkShow();
         engine.setStatus('Pembagian kelompok selesai!', false);

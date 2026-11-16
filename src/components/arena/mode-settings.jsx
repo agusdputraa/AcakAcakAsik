@@ -33,9 +33,9 @@ function RaceSettings({view,actions}) {
     set('raceGroupsText',formatGroups(groups))
   }
   return <section className="mode-settings grid gap-3">
-    <h3 className="text-sm font-bold">Daftar khusus Urutan</h3>
+    <h3 className="text-sm font-bold">Daftar peserta {view.mode==='topics'?'Topik':'Urutan'}</h3>
     <Select value={view.raceListType} disabled={view.isBusy} onValueChange={v=>set('raceListType',v)}>
-      <SelectTrigger className="w-full" aria-label="Jenis daftar Urutan"><SelectValue/></SelectTrigger>
+      <SelectTrigger className="w-full" aria-label={"Jenis daftar " + (view.mode==='topics'?'Topik':'Urutan')}><SelectValue/></SelectTrigger>
       <SelectContent><SelectItem value="only-groups">Hanya Kelompok</SelectItem><SelectItem value="group-members">Kelompok dan Anggota</SelectItem><SelectItem value="individual">Individu</SelectItem></SelectContent>
     </Select>
     {view.raceListType==='only-groups' && <label className="grid gap-2 text-sm">Jumlah kelompok (2–12)<input className="arena-input" type="number" min="2" max="12" disabled={view.isBusy} value={view.raceGroupCount} onChange={e=>set('raceGroupCount',e.target.value)}/><small>3 anggota per kelompok, dengan warna baju yang sama.</small></label>}
@@ -51,16 +51,26 @@ function RaceSettings({view,actions}) {
       </Tabs>
       {parsed.error ? <p role="alert" className="text-xs text-destructive">{parsed.error}</p> : <p className="text-xs text-muted-foreground">{parsed.groups.length} kelompok · {parsed.groups.reduce((n,g)=>n+g.members.length,0)} anggota terdeteksi</p>}
     </>}
-    <label className="grid gap-2 text-sm">Jumlah lap (1–10)<input className="arena-input" type="number" min="1" max="10" disabled={view.isBusy} value={view.laps} onChange={e=>set('laps',e.target.value)}/></label>
+    {view.mode==='race' && <><label className="grid gap-2 text-sm">Jumlah lap (1–10)<input className="arena-input" type="number" min="1" max="10" disabled={view.isBusy} value={view.laps} onChange={e=>set('laps',e.target.value)}/></label>
     <p className="text-xs text-muted-foreground">Kecepatan setiap anggota diacak ulang tiap balapan. Kelompok finis ketika anggota terakhir menyelesaikan semua lap. Kelompok dengan anggota lebih banyak secara alami lebih sulit finis lebih awal.</p>
-    {view.hasRaceResults && <Button variant="outline" onClick={actions.showLastRaceResults}>Lihat hasil balap terakhir</Button>}
+    {view.hasRaceResults && <Button variant="outline" onClick={actions.showLastRaceResults}>Lihat hasil balap terakhir</Button>}</>}
   </section>
 }
 export function ModeSettings({view,actions}) {
   return <>
     {view.mode==='groups' && <GroupSettings view={view} actions={actions}/>}
-    {view.mode==='race' && <RaceSettings view={view} actions={actions}/>}
+    {['race','topics'].includes(view.mode) && <RaceSettings view={view} actions={actions}/>}
+    {view.mode==='topics' && <section className="mode-settings grid gap-3">
+      <h3 className="text-sm font-bold">Topik tujuan</h3>
+      <label className="grid gap-2 text-sm">Nama topik, satu per baris<Textarea rows={5} disabled={view.isBusy} value={view.topicsText} onChange={e=>actions.setRaceOption('topicsText',e.target.value)}/></label>
+      <p className="text-xs text-muted-foreground">Masukkan 1–8 topik berbeda. Kelompok tetap utuh. Topik dibagikan secara acak dan merata; satu topik dapat diterima beberapa kelompok atau individu. Daftar peserta digunakan bersama kategori Urutan.</p>
+    </section>}
+    {view.mode==='choices' && <section className="mode-settings grid gap-3">
+      <h3 className="text-sm font-bold">Daftar pilihan</h3>
+      <label className="grid gap-2 text-sm">Pilihan, satu per baris<Textarea rows={10} disabled={view.isBusy} value={view.choicesText} placeholder={'Contoh: Membaca\nMenggambar\nBermain musik'} onChange={e=>actions.setRaceOption('choicesText',e.target.value)}/></label>
+      <p className="text-xs text-muted-foreground">Setiap baris memiliki peluang yang sama. Daftar bergulir ke bawah pada layar panggung dan berhenti pada satu pilihan. Karakter hanya menjadi penonton.</p>
+    </section>}
     {view.mode==='single' && <section className="mode-settings grid gap-2"><h3 className="text-sm font-bold">Jenis Pemilihan</h3><RadioGroup value={view.singleType} disabled={view.isBusy} onValueChange={v=>actions.setRaceOption('singleType',v)}>{[['spotlight','Sorot Lampu'],['mc','Dijemput MC']].map(([v,label])=><label key={v} className="radio-option"><RadioGroupItem value={v}/>{label}</label>)}</RadioGroup></section>}
-    {view.mode!=='race' && view.excludedCount>0 && <Button variant="outline" disabled={view.isBusy} onClick={actions.resetExcluded}>Reset · kembalikan {view.excludedCount} orang</Button>}
+    {!['race','topics','choices'].includes(view.mode) && view.excludedCount>0 && <Button variant="outline" disabled={view.isBusy} onClick={actions.resetExcluded}>Reset · kembalikan {view.excludedCount} orang</Button>}
   </>
 }

@@ -14,6 +14,14 @@ export function ArenaOverlays({ view, onDismissWinner, actions }) {
           <strong key={view.countdown}>{view.countdown}</strong>
         </div>
       )}
+      {view.mode==='choices' && view.choicesWinner && (
+        <section className="winner-banner celebration-banner" role="status" aria-label="Pilihan terpilih">
+          <Trophy className="text-amber-500" aria-hidden="true"/>
+          <div><p>Pilihan terpilih</p><strong className="break-words">{view.choicesWinner}</strong></div>
+          <Button size="sm" onClick={()=>actions?.start()}>Acak lagi</Button>
+          <Button variant="outline" size="sm" onClick={()=>actions?.dismissChoiceResult()}>Tutup</Button>
+        </section>
+      )}
       {view.winner && (
         <section className="winner-banner celebration-banner" aria-label="Orang terpilih">
           <Trophy className="text-amber-500" aria-hidden="true" />
