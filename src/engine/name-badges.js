@@ -7,7 +7,7 @@ export function attachNameBadges(engine) {
     function createNameBadgeElement(name, isMC = false) {
         const el = document.createElement('div');
         el.className = isMC
-            ? 'name-badge px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950 font-extrabold text-[11px] shadow-md border border-white max-w-[130px] truncate'
+            ? 'name-badge px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950 font-extrabold text-[11px] shadow-md border border-white max-w-[240px] whitespace-nowrap'
             : 'name-badge px-2.5 py-0.5 rounded-full bg-slate-900/80 text-white font-bold text-[11px] shadow-sm border border-white/25 backdrop-blur-xs max-w-[120px] truncate';
         el.textContent = name;
         labelsContainer.appendChild(el);
@@ -63,7 +63,7 @@ export function attachNameBadges(engine) {
         });
 
         if (engine.mcEntity && engine.mcEntity.labelEl) {
-            if (!engine.stageEnvGroup.visible) {
+            if (!(engine.stageEnvGroup.visible || engine.state.mode === 'race')) {
                 engine.mcEntity.labelEl.style.opacity = '0';
             } else {
                 tempProjVec.copy(engine.mcEntity.meshParts.root.position);

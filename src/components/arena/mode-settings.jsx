@@ -70,7 +70,7 @@ export function ModeSettings({view,actions}) {
       <label className="grid gap-2 text-sm">Pilihan, satu per baris<Textarea rows={10} disabled={view.isBusy} value={view.choicesText} placeholder={'Contoh: Membaca\nMenggambar\nBermain musik'} onChange={e=>actions.setRaceOption('choicesText',e.target.value)}/></label>
       <p className="text-xs text-muted-foreground">Setiap baris memiliki peluang yang sama. Daftar bergulir ke bawah pada layar panggung dan berhenti pada satu pilihan. Karakter hanya menjadi penonton.</p>
     </section>}
-    {view.mode==='single' && <section className="mode-settings grid gap-2"><h3 className="text-sm font-bold">Jenis Pemilihan</h3><RadioGroup value={view.singleType} disabled={view.isBusy} onValueChange={v=>actions.setRaceOption('singleType',v)}>{[['spotlight','Sorot Lampu'],['mc','Dijemput MC']].map(([v,label])=><label key={v} className="radio-option"><RadioGroupItem value={v}/>{label}</label>)}</RadioGroup></section>}
+    {view.mode==='single' && <section className="mode-settings grid gap-2"><h3 className="text-sm font-bold">Jenis Pemilihan</h3><RadioGroup value={view.singleType} disabled={view.isBusy} onValueChange={v=>actions.setRaceOption('singleType',v)}>{[['spotlight','Sorot Lampu'],['mc','Dijemput Host']].map(([v,label])=><label key={v} className="radio-option"><RadioGroupItem value={v}/>{label}</label>)}</RadioGroup></section>}
     {!['race','topics','choices'].includes(view.mode) && view.excludedCount>0 && <Button variant="outline" disabled={view.isBusy} onClick={actions.resetExcluded}>Reset · kembalikan {view.excludedCount} orang</Button>}
   </>
 }

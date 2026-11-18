@@ -6,8 +6,8 @@ export function attachParticipants(engine) {
         const parts = engine.createCharacterMesh({ shirtColor: 0x0f172a, skinColor: 0xffdbac, isMC: true, scale: 1.14, styleSeed: 99 });
         parts.root.position.set(0, engine.STAGE_TOP_Y, engine.STAGE_Z + 1.2);
         engine.stageEnvGroup.add(parts.root);
-        const labelEl = engine.createNameBadgeElement('🎤 MC Panggung', true);
-        engine.mcEntity = { name: '🎤 MC Panggung', meshParts: parts, pos: new THREE.Vector3(0, engine.STAGE_TOP_Y, engine.STAGE_Z + 1.2), waypoints: [], speed: 5.5, walkCycle: 0, isMoving: false, labelEl };
+        const labelEl = engine.createNameBadgeElement('🎤 Host Kesayangan Anda', true);
+        engine.mcEntity = { name: '🎤 Host Kesayangan Anda', meshParts: parts, pos: new THREE.Vector3(0, engine.STAGE_TOP_Y, engine.STAGE_Z + 1.2), waypoints: [], speed: 5.5, walkCycle: 0, isMoving: false, labelEl };
     }
 
     function getInitialFormationPosition(index, total, mode) {

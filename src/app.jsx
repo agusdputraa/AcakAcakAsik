@@ -1,5 +1,7 @@
+import { HomePage } from '@/components/home/home-page'
+import { modes } from '@/components/arena/modes'
 import { CameraPanel } from '@/components/arena/camera-panel'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { toast } from 'sonner'
 import { ArenaHeader } from '@/components/arena/arena-header'
 import { ArenaOverlays } from '@/components/arena/arena-overlays'
@@ -13,7 +15,15 @@ const initialView = {
   countdown: null, result: null, winner: null, muted: false, isBusy: false,
 }
 
+const subscribeRoute = callback => { window.addEventListener('hashchange',callback); return ()=>window.removeEventListener('hashchange',callback) }
+const getRoute = () => window.location.hash
 export default function App() {
+  const route = useSyncExternalStore(subscribeRoute,getRoute)
+  const mode = route.startsWith('#arena/') ? route.slice(7) : null
+  return mode && modes[mode] ? <ArenaApp key={mode} initialMode={mode}/> : <HomePage/>
+}
+
+function ArenaApp({initialMode}) {
   const canvas = useRef(null)
   const labels = useRef(null)
   const fireworks = useRef(null)
@@ -33,6 +43,7 @@ export default function App() {
     import('./engine').then(({ createArenaEngine }) => {
       if (disposed) return
       arena = createArenaEngine({
+        initialMode,
         surfaces: { canvas: canvas.current, labels: labels.current, fireworks: fireworks.current },
         onState: setView,
         onCollapse: () => setSettingsOpen(false),

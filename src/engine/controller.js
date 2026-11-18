@@ -33,6 +33,7 @@ export function attachController(engine) {
         const kind = title === 'Topik' ? 'topics' : title === 'Kelompok' ? 'groups' : 'race';
         engine.state.result = {
             kind,
+            listType: engine.state.raceListType,
             entries: entries.map(({ name, members, rank, finishTime, theme }, index) => ({
                 name, index, rank, finishTime, color: theme?.hex, members: members.map(member => member.name)
             }))
@@ -47,7 +48,7 @@ export function attachController(engine) {
 
     function showLastRaceResults() {
         if (!engine.state.isBusy && engine.state.raceWinnersList.length) {
-            openResultsModal('Hasil Balap Lari', engine.state.raceWinnersList);
+            openResultsModal('Hasil Urutan', engine.state.raceWinnersList);
         }
     }
 
@@ -116,6 +117,18 @@ export function attachController(engine) {
         else if(mode==='groups')engine.rebuildGroupZones(engine.state.groupCount);
         engine.stageEnvGroup.visible = ['single','individual','choices'].includes(mode);
         engine.raceEnvGroup.visible = mode === 'race';
+        if (engine.mcEntity) {
+            const host = engine.mcEntity;
+            (mode === 'race' ? engine.raceEnvGroup : engine.stageEnvGroup).add(host.meshParts.root);
+            host.waypoints = [];
+            host.isMoving = false;
+            host.celebrating = false;
+            if (mode === 'race') {
+                host.pos.set(-10, engine.STAGE_TOP_Y, engine.STAGE_Z + 28.2);
+                host.meshParts.root.position.copy(host.pos);
+                host.meshParts.root.rotation.y = 0;
+            }
+        }
         if (mode !== 'race') {
             engine.state.raceRunners = [];
             engine.configureRaceLanes(0);
@@ -249,7 +262,7 @@ export function attachController(engine) {
         engine.loadStateFromLocalStorage();
         engine.initMCCharacter();
         engine.rebuildGroupZones(engine.state.groupCount);
-        selectMode(engine.state.mode, true);
+        selectMode(engine.initialMode || engine.state.mode, true);
         window.addEventListener('resize', handleResize);
         engine.animate();
     }

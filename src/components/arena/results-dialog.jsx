@@ -2,22 +2,21 @@ import { formatGroups } from '@/lib/group-format'
 import { Copy, Flag, Trophy, Users } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-
-const number = new Intl.NumberFormat('id-ID', { minimumFractionDigits: 3, maximumFractionDigits: 3 })
-const finishTime = time => `${number.format(time)} detik`
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 
 export function ResultsDialog({ result, open, onClose }) {
   const topics = result?.kind === 'topics'
   const race = result?.kind === 'race'
-  const title = race ? 'Hasil Balap Lari' : topics ? 'Hasil Pembagian Topik' : 'Hasil Pembagian Kelompok'
+  const title = race ? 'Hasil Urutan' : topics ? 'Hasil Pembagian Topik' : 'Hasil Pembagian Kelompok'
   const Icon = race ? Trophy : Users
 
-  async function copy() {
+  const canCopyMembers = race && result?.listType === 'group-members'
+
+  async function copy(withMembers = false) {
     const lines = result.entries.map(item => {
       const people = item.members.join(', ')
       return race
-        ? `${item.rank}. ${item.name} · ${finishTime(item.finishTime)}${people ? ` · ${people}` : ''}`
+        ? `${item.rank}. ${item.name}${withMembers && people ? ` · ${people}` : ''}`
         : `${item.name} · ${people}`
     })
     try {
@@ -32,7 +31,7 @@ export function ResultsDialog({ result, open, onClose }) {
         <DialogHeader className="text-left">
           <div className={`result-symbol ${race ? 'race-symbol' : ''}`}><Icon /></div>
           <h2 className="text-lg font-bold">{title}</h2>
-          <p className="text-sm text-muted-foreground">{race ? 'Waktu kelompok adalah waktu anggota terakhir menyelesaikan seluruh lap.' : topics ? 'Kelompok atau individu dan topik yang diterima.' : `${result?.entries.length ?? 0} kelompok terbentuk.`}</p>
+          <p className="text-sm text-muted-foreground">{race ? 'Urutan presentasi individu atau kelompok.' : topics ? 'Kelompok atau individu dan topik yang diterima.' : `${result?.entries.length ?? 0} kelompok terbentuk.`}</p>
         </DialogHeader>
         <div className="overflow-y-auto pr-1">
           {race ? (
@@ -42,9 +41,7 @@ export function ResultsDialog({ result, open, onClose }) {
                   <span className="result-rank">{item.rank}</span>
                   <div className="min-w-0 flex-1">
                     <p className="break-words font-bold">{item.name}</p>
-                    {!!item.members.length && <p className="break-words text-xs text-muted-foreground">{item.members.join(', ')}</p>}
                   </div>
-                  <span className="whitespace-nowrap text-xs font-semibold tabular-nums">{finishTime(item.finishTime)}</span>
                 </li>
               ))}
             </ol>
@@ -62,8 +59,9 @@ export function ResultsDialog({ result, open, onClose }) {
             </div>
           )}
         </div>
-        <DialogFooter>
-          <Button type="button" variant="outline" onClick={copy}><Copy /> Salin Hasil</Button>
+        <DialogFooter className="sm:flex-wrap">
+          <Button type="button" variant="outline" onClick={() => copy(false)}><Copy /> {canCopyMembers ? 'Salin tanpa anggota' : 'Salin Hasil'}</Button>
+          {canCopyMembers && <Button type="button" variant="outline" onClick={() => copy(true)}><Copy /> Salin dengan anggota</Button>}
           <Button type="button" onClick={onClose}><Flag /> Kembali ke Arena</Button>
         </DialogFooter>
   </>

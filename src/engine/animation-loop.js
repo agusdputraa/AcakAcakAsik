@@ -93,7 +93,7 @@ export function attachAnimationLoop(engine) {
         if (engine.state.mode === 'topics') engine.updateTopicSimulation(anyParticipantStillRunning);
         if (engine.state.mode === 'choices') engine.updateChoiceSimulation(dt);
 
-        if (engine.mcEntity && engine.stageEnvGroup.visible) {
+        if (engine.mcEntity && (engine.stageEnvGroup.visible || engine.state.mode === 'race')) {
             updateCharacterLocomotion(engine.mcEntity, dt, elapsedTime);
         }
 

@@ -26,7 +26,7 @@ export function attachRaffle(engine) {
             engine.mcEntity.celebrating = false;
             if(engine.state.mode==='choices')engine.mcEntity.pos.set(-6.1,.12,engine.STAGE_Z+3.8);
             else engine.mcEntity.pos.set(0, engine.STAGE_TOP_Y, engine.STAGE_Z + 1.2);
-            if(engine.mcEntity.labelEl)engine.mcEntity.labelEl.textContent=engine.state.mode==='choices'?'🎤 Host':'🎤 MC Panggung';
+            if(engine.mcEntity.labelEl)engine.mcEntity.labelEl.textContent='🎤 Host Kesayangan Anda';
             engine.mcEntity.meshParts.root.position.copy(engine.mcEntity.pos);
             engine.mcEntity.meshParts.root.rotation.y = 0;
         }
@@ -109,7 +109,7 @@ export function attachRaffle(engine) {
         engine.hideWinnerCelebration();
         engine.clearSimulationTimers();
         engine.sfx.init();
-        engine.setStatus('MC menjemput orang terpilih ke panggung...', true);
+        engine.setStatus('Host Kesayangan Anda menjemput orang terpilih ke panggung...', true);
         resetCrowdAndStage();
 
         const winnerIdx = Math.floor(randomUnit() * engine.participantEntities.length);

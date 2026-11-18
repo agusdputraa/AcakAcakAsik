@@ -1,4 +1,4 @@
-import { Check, ChevronDown, Camera, Trophy, Volume2, VolumeX, RectangleHorizontal, Users } from 'lucide-react'
+import { Shuffle, Check, ChevronDown, Camera, Trophy, Volume2, VolumeX, RectangleHorizontal, Users } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { modes } from './modes'
@@ -9,10 +9,10 @@ export function ArenaHeader({ view, actions, onCamera, onResults, hasResults }) 
   const AudioIcon = view.muted ? VolumeX : Volume2
   return (
     <><header className="arena-header">
-      <div className="arena-brand">
-        <div className="brand-mark" aria-hidden="true"><i /><i /><i /></div>
-        <h1>Acak Acak <span>Asik</span></h1>
-      </div>
+      <a href="#home" className="arena-brand pointer-events-auto" aria-label="Kembali ke beranda">
+        <span className="home-brand-icon" aria-hidden="true"><Shuffle size={23}/></span>
+        <h1>Acak Acak <span>Asik.</span></h1>
+      </a>
 
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>

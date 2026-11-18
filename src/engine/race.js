@@ -46,8 +46,8 @@ export function attachRace(engine) {
         if(finished!==s.raceRunners.length)return;
         s.raceActive=false;s.racePhase='finished';
         s.raceWinnersList=rankGroups(groups,s.raceRunners).map((g,i)=>({...g,rank:i+1,members:g.members.map(name=>({name}))}));
-        engine.sfx.playFanfare();engine.launchFireworkShow();engine.setStatus('Semua peserta sudah finis!',false);
-        engine.openResultsModal('Hasil Balap',s.raceWinnersList);
+        engine.sfx.playFanfare();engine.launchFireworkShow();engine.setStatus('Urutan sudah ditentukan!',false);
+        engine.openResultsModal('Hasil Urutan',s.raceWinnersList);
     }
     function skipRace() {
         const s=engine.state;
