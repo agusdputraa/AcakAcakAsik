@@ -77,7 +77,7 @@ test('invalid topic lists are rejected before starting or replacing group histor
     const engine={showToast(message){this.error=message}}
     attachState(engine);attachTopics(engine)
     engine.state.lastGroupsResult=[{name:'Saved',members:[]}]
-    for(const text of ['', 'A\nA',Array(9).fill(0).map((_,i)=>String(i)).join('\n')]) {
+    for(const text of ['', 'A\nA',Array(31).fill(0).map((_,i)=>String(i)).join('\n')]) {
         engine.state.topicsText=text
         engine.error=null;engine.startTopicSimulation()
         assert.ok(engine.error)
@@ -104,10 +104,7 @@ test('skip finishes the existing race plan once and preserves its ranking and ti
     attachRace(engine)
     engine.state.racePhase='ready'
     engine.startRaceSimulation()
-    engine.skipRace()
-    assert.equal(engine.results,undefined)
-    t.mock.timers.tick(3000)
-    assert.equal(engine.state.raceActive,true)
+    assert.equal(engine.state.racePhase,'countdown')
     const plan=engine.state.raceRunners
     const expected=[...plan].sort((a,b)=>a.duration-b.duration)
     engine.skipRace()

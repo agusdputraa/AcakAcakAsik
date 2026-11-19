@@ -2,7 +2,19 @@ import { randomUnit } from './random.js'
 import * as THREE from 'three'
 
 export function attachRaffle(engine) {
-    // --- SEQUENCE B: SPOTLIGHT & MC ---
+    function skipToWinner(winner) {
+        engine.clearSimulationTimers();
+        for (const person of [...engine.participantEntities, engine.mcEntity].filter(Boolean)) {
+            person.waypoints=[];person.isMoving=false;
+        }
+        winner.celebrating=true;
+        engine.highlightBadge(winner,true,true);
+        engine.spotlightBeamMesh.visible=false;
+        engine.spotlightRingMesh.visible=false;
+        engine.sfx.playFanfare();engine.launchFireworkShow();
+        engine.setStatus(`Orang terpilih: ${winner.name}!`,false);
+        engine.showWinnerCelebration({id:winner.id,name:winner.name});
+    }
     function resetCrowdAndStage() {
         if (engine.spotlightBeamMesh) engine.spotlightBeamMesh.visible = false;
         if (engine.spotlightRingMesh) engine.spotlightRingMesh.visible = false;
@@ -47,6 +59,7 @@ export function attachRaffle(engine) {
 
         const winnerIdx = Math.floor(randomUnit() * engine.participantEntities.length);
         const winner = engine.participantEntities[winnerIdx];
+        engine.skipAction=()=>skipToWinner(winner);
         const totalHops = engine.state.mode === 'individual' ? 1 : 24 + Math.floor(randomUnit() * 7);
         let hopSequence = [];
         let lastIdx = -1;
@@ -114,6 +127,7 @@ export function attachRaffle(engine) {
 
         const winnerIdx = Math.floor(randomUnit() * engine.participantEntities.length);
         const winner = engine.participantEntities[winnerIdx];
+        engine.skipAction=()=>skipToWinner(winner);
 
         engine.mcEntity.speed = 5.4;
         engine.mcEntity.waypoints = [

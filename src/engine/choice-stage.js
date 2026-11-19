@@ -2,6 +2,7 @@ import * as THREE from 'three'
 
 export function attachChoiceStage(engine) {
     const group=new THREE.Group()
+    engine.choiceStageGroup=group
     group.visible=false
     engine.stageEnvGroup.add(group)
     const canvas=document.createElement('canvas')
@@ -50,6 +51,7 @@ export function attachChoiceStage(engine) {
         context.fillText(label,640,y,maxWidth)
     }
     function drawChoiceScreen(entries,position=0,phase='idle') {
+        engine.choiceDisplay={position,phase}
         context.fillStyle='#102d2b';context.fillRect(0,0,1280,640)
         context.textAlign='center';context.textBaseline='middle'
         text(phase==='finished'?'PILIHAN TERPILIH':phase==='spinning'?'MENGACAK PILIHAN':'PILIHAN',70,38,'#a4d8bc')

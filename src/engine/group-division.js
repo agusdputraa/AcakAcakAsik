@@ -21,6 +21,7 @@ export function attachGroupDivision(engine) {
         engine.state.groupArrivalDwellTimer = 0;
         engine.state.pendingGroupsResult = null;
 
+        engine.focusField?.();
         engine.sfx.init();
         engine.sfx.playPop(2);
         engine.setStatus('Peserta berlari mencari kelompok...', true);
@@ -49,10 +50,10 @@ export function attachGroupDivision(engine) {
             const r = 1.2 + randomUnit() * 2.2;
             p.speed = 7.6;
             p.isMoving = true;
-            p.waypoints = [new THREE.Vector3(Math.cos(angle) * r, 0.12, Math.sin(angle) * r)];
+            p.waypoints = [new THREE.Vector3(Math.cos(angle) * r, 0.12, Math.sin(angle) * r + (engine.fieldLayout?.centerZ || 0))];
         });
 
-        const t2 = setTimeout(() => {
+        const sendToGroups = () => {
             engine.setStatus('Peserta menuju kotak kelompok masing-masing...', true);
             engine.sfx.playTing(0.95);
 
@@ -70,8 +71,9 @@ export function attachGroupDivision(engine) {
                     const finalX = zone.center.x - zone.width / 2 + cellW * (c + 0.5);
                     const finalZ = zone.center.z - zone.depth / 2 + cellD * (r + 0.5);
 
+                    p.meshParts.root.scale.setScalar(Math.min(1,cellW/1.1,cellD/1.1));
                     p.speed = 8.4 + randomUnit() * 2.0;
-                    p.waypoints = Array.from({length: 4}, () => new THREE.Vector3((randomUnit()-.5)*14, .12, (randomUnit()-.5)*10));
+                    p.waypoints.push(...Array.from({length: 4}, () => new THREE.Vector3((randomUnit()-.5)*(engine.fieldLayout?.width || 34)*.7, .12, (randomUnit()-.5)*(engine.fieldLayout?.depth || 24)*.7+(engine.fieldLayout?.centerZ || 0))));
                     p.waypoints.push(new THREE.Vector3(finalX, 0.12, finalZ));
                     p.isMoving = true;
                 });
@@ -80,8 +82,19 @@ export function attachGroupDivision(engine) {
             engine.state.pendingGroupsResult = groups;
             engine.state.groupArrivalDwellTimer = 0;
             engine.state.waitingForGroupArrival = true;
-        }, 1050);
+        };
+        const t2 = setTimeout(sendToGroups,1050);
         engine.activeTimers.push(t2);
+        engine.skipAction=()=>{
+            engine.clearSimulationTimers();
+            sendToGroups();
+            for(const person of engine.participantEntities) {
+                person.pos.copy(person.waypoints.at(-1));person.meshParts.root.position.copy(person.pos);
+                person.waypoints=[];person.isMoving=false;
+            }
+            engine.state.waitingForGroupArrival=false;engine.state.pendingGroupsResult=null;
+            finalizeGroupDivisionArrival(groups);
+        };
     }
 
     function finalizeGroupDivisionArrival(groups) {

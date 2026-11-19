@@ -33,6 +33,7 @@ export function attachChoices(engine) {
         engine.resetCrowdAndStage()
         engine.state.choicesWinner=null
         plan=makeChoicePlan(entries);elapsed=0
+        engine.skipAction=()=>updateChoiceSimulation(plan?.duration || 0)
         engine.sfx.init();engine.sfx.playPop(2)
         engine.state.cameraMode='track'
         engine.resetChoiceCamera()

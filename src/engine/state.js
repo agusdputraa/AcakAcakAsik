@@ -16,7 +16,7 @@ export function attachState(engine) {
         raceListType: 'only-groups', raceGroupCount: 3, raceNames: initialNames.join('\n'),
         raceGroupsText: '', laps: 1, cameraMode: 'track', cameraTarget: null, cameraSide: 'rear',
         masterParticipants: initialNames.map((name, i) => ({ id: i + 1, name })),
-        groupCount: 4,
+        groupCount: 8,
         isBusy: false,
         lastGroupsResult: [],
         waitingForGroupArrival: false,
@@ -25,7 +25,7 @@ export function attachState(engine) {
 
         // Race specific state
         racePhase: 'waiting', raceCameraView: 'waiting',
-        topicsText: 'Lingkungan\nTeknologi\nKesehatan\nPendidikan',
+        topicsText: 'Lingkungan\nTeknologi\nKesehatan\nPendidikan\nBudaya\nEkonomi\nSeni\nOlahraga',
         raceRunners: [],
         raceActive: false,
         raceElapsed: 0,
@@ -73,9 +73,9 @@ export function attachState(engine) {
                 if (Array.isArray(parsed.excludedIds)) state.excludedIds = parsed.excludedIds;
                 if (['only-groups','group-members','individual'].includes(parsed.raceListType)) state.raceListType = parsed.raceListType;
                 for (const key of ['raceNames','raceGroupsText','topicsText','choicesText']) if (typeof parsed[key] === 'string') state[key] = parsed[key];
-                if (Number.isInteger(parsed.laps)) state.laps = Math.max(1, Math.min(10, parsed.laps));
-                if (Number.isInteger(parsed.raceGroupCount)) state.raceGroupCount = Math.max(2, Math.min(12, parsed.raceGroupCount));
-                if (typeof parsed.groupCount === 'number' && parsed.groupCount >= 2 && parsed.groupCount <= 8) {
+                if (Number.isInteger(parsed.laps)) state.laps = Math.max(1, Math.min(30, parsed.laps));
+                if (Number.isInteger(parsed.raceGroupCount)) state.raceGroupCount = Math.max(2, Math.min(30, parsed.raceGroupCount));
+                if (typeof parsed.groupCount === 'number' && parsed.groupCount >= 2 && parsed.groupCount <= 30) {
                     state.groupCount = parsed.groupCount;
                 }
                 if (Array.isArray(parsed.lastGroupsResult)) {

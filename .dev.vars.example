@@ -1,0 +1,6 @@
+# Only local wrangler dev. Never set LOCAL_MODE=true in the deployed Worker.
+LOCAL_MODE=true
+APP_ORIGIN=http://localhost:5173
+# Production uses wrangler secret put, not this file:
+# DATABASE_URL=postgresql://...
+# TURNSTILE_SECRET=...

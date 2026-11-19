@@ -14,23 +14,23 @@ export function assignTopics(groups, topics, random) {
     return order.sort((a,b)=>a.index-b.index)
 }
 
-export function topicLoopWaypoints(index, total) {
+export function topicLoopWaypoints(index, total, width = 31.6, depth = 20.8, centerZ = 0) {
     const start = index / Math.max(1,total) * Math.PI * 2
     return Array.from({length:25},(_,step)=>{
         const angle=start+step/24*Math.PI*2
-        return new THREE.Vector3(Math.cos(angle)*15.8,.12,Math.sin(angle)*10.4)
+        return new THREE.Vector3(Math.cos(angle)*width/2,.12,Math.sin(angle)*depth/2+centerZ)
     })
 }
 
 export function attachTopics(engine) {
     function rebuildTopicZones() {
         const names=parseTopics(engine.state.topicsText)
-        engine.rebuildGroupZones(Math.max(1,Math.min(8,names.length)),names)
+        engine.rebuildGroupZones(Math.max(1,Math.min(30,names.length)),names)
     }
     function startTopicSimulation() {
         if(engine.state.isBusy)return
         const topics=parseTopics(engine.state.topicsText)
-        if(!topics.length || topics.length>8)return engine.showToast('Masukkan 1–8 topik, satu per baris.','error')
+        if(!topics.length || topics.length>30)return engine.showToast('Masukkan 1–30 topik, satu per baris.','error')
         if(new Set(topics).size!==topics.length)return engine.showToast('Gunakan nama topik yang berbeda.','error')
         if(engine.state.raceListType==='group-members') {
             const {error}=parseGroups(engine.state.raceGroupsText)
@@ -42,6 +42,7 @@ export function attachTopics(engine) {
         engine.hideWinnerCelebration()
         rebuildTopicZones()
         engine.spawnParticipants(false)
+        engine.focusField?.()
         engine.sfx.init()
         const assigned=assignTopics(groups,topics)
         const result=assigned.map(topic=>{
@@ -58,10 +59,21 @@ export function attachTopics(engine) {
                     .12,
                     zone.center.z-zone.depth/2+zone.depth/rows*(Math.floor(index/cols)+.5)
                 )
-                person.waypoints=topicLoopWaypoints(person.index,engine.participantEntities.length)
+                person.waypoints=topicLoopWaypoints(person.index,engine.participantEntities.length,(engine.fieldLayout?.width || 26.6)+5,(engine.fieldLayout?.depth || 15.8)+5,engine.fieldLayout?.centerZ || 0)
             })
             return {...zone,members,assignedGroups:topic.groups}
         })
+        engine.skipAction=()=>{
+            engine.clearSimulationTimers()
+            engine.participantEntities.forEach(person=>{
+                const destination=person.topicDestination || person.waypoints.at(-1)
+                if(destination)person.pos.copy(destination)
+                person.meshParts.root.position.copy(person.pos)
+                person.waypoints=[];person.isMoving=false;person.topicDestination=null
+            })
+            engine.state.waitingForGroupArrival=false;engine.state.pendingGroupsResult=null
+            finalizeTopicArrival(result)
+        }
         engine.state.pendingGroupsResult=result
         engine.state.groupArrivalDwellTimer=0
         engine.state.waitingForGroupArrival=false

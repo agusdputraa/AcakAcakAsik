@@ -59,18 +59,18 @@ export function attachController(engine) {
     function setRaceOption(key, value) {
         const camera=['cameraMode','cameraTarget','cameraSide','raceCameraView'].includes(key);
         if(engine.state.isBusy && !camera)return;
-        if(key==='laps') value=Math.max(1,Math.min(10,Number(value)||1));
-        if(key==='raceGroupCount') value=Math.max(2,Math.min(12,Number(value)||2));
+        if(key==='laps') value=Math.max(1,Math.min(30,Number(value)||1));
+        if(key==='raceGroupCount') value=Math.max(2,Math.min(30,Number(value)||2));
         engine.state[key]=value;
         if(camera){if(key==='raceCameraView')engine.state.cameraMode='track';engine.controls.enabled=true;resetCamera();}
         else if(['race','topics'].includes(engine.state.mode)) {
             engine.state.raceWinnersList=[];engine.state.result=null;
-            if(engine.state.mode==='topics')engine.rebuildTopicZones();
+            if(engine.state.mode==='topics') { engine.rebuildTopicZones(); resetCamera(); }
             engine.spawnParticipants(false);
             engine.setStatus(engine.state.mode==='race'?'Berkumpul di area tunggu.':'Siap membagikan topik.');
         }
         if(key==='choicesText')engine.resetChoiceDisplay();
-        engine.saveStateToLocalStorage();publish();
+        if(!engine.playbackConfig)engine.saveStateToLocalStorage();publish();
     }
     function useSavedGroups(){setRaceOption('raceGroupsText',formatGroups(engine.state.lastGroupsResult));}
     function excludeWinner(){
@@ -89,7 +89,7 @@ export function attachController(engine) {
         engine.controls.minDistance = 2;
         engine.clearFollowCamera();
         if (engine.state.cameraMode === 'follow') { engine.resetFollowCamera(); return; }
-        if (['groups','topics'].includes(engine.state.mode)) engine.moveCameraSmoothly(new THREE.Vector3(0, 22, 26), new THREE.Vector3(0, 0.5, 0));
+        if (['groups','topics'].includes(engine.state.mode)) { if(engine.focusField) engine.focusField(true); else engine.moveCameraSmoothly(new THREE.Vector3(0,22,26),new THREE.Vector3(0,.5,0)); }
         else if (engine.state.mode === 'race') engine.resetRaceCamera();
         else if (engine.state.mode === 'choices') engine.resetChoiceCamera();
         else engine.moveCameraSmoothly(new THREE.Vector3(0, 11.5, 19.5), new THREE.Vector3(0, 1, -2.5));
@@ -100,6 +100,7 @@ export function attachController(engine) {
             showToast('Tunggu animasi selesai.', 'error');
             return;
         }
+        engine.skipAction=null;
         engine.state.mode = mode;
         engine.state.cameraMode='track'; engine.state.cameraTarget=null;engine.controls.enabled=true;
         engine.clearSimulationTimers();
@@ -112,14 +113,14 @@ export function attachController(engine) {
         engine.resetChoiceDisplay();
         engine.state.waitingForGroupArrival=false;engine.state.pendingGroupsResult=null;
         engine.state.raceActive=false;engine.state.racePhase='waiting';engine.state.raceCameraView='waiting';
-        engine.fieldEnvGroup.visible = mode === 'groups' || mode === 'topics';
+        engine.activateWorld?.(mode);
         if(mode==='topics')engine.rebuildTopicZones();
         else if(mode==='groups')engine.rebuildGroupZones(engine.state.groupCount);
-        engine.stageEnvGroup.visible = ['single','individual','choices'].includes(mode);
-        engine.raceEnvGroup.visible = mode === 'race';
+
         if (engine.mcEntity) {
             const host = engine.mcEntity;
-            (mode === 'race' ? engine.raceEnvGroup : engine.stageEnvGroup).add(host.meshParts.root);
+            (engine.activeHostGroup || (mode === 'race' ? engine.raceEnvGroup : engine.stageEnvGroup)).add(host.meshParts.root);
+            host.meshParts.root.visible = ['single','individual','choices','race'].includes(mode);
             host.waypoints = [];
             host.isMoving = false;
             host.celebrating = false;
@@ -132,14 +133,14 @@ export function attachController(engine) {
         if (mode !== 'race') {
             engine.state.raceRunners = [];
             engine.configureRaceLanes(0);
-            engine.controls.maxDistance = 58;
-            engine.camera.far = 200;
+            engine.controls.maxDistance = engine.activateWorld ? 850 : 58;
+            engine.camera.far = engine.activateWorld ? 1500 : 200;
             engine.camera.updateProjectionMatrix();
         }
         engine.spawnParticipants(false);
-        if (engine.stageEnvGroup.visible) engine.resetCrowdAndStage();
+        if (['single','individual','choices'].includes(engine.state.mode)) engine.resetCrowdAndStage();
         resetCamera();
-        engine.saveStateToLocalStorage();
+        if(!engine.playbackConfig)engine.saveStateToLocalStorage();
         const status = {
             groups: 'Siap membagi kelompok',
             single: 'Siap memilih satu orang',
@@ -160,7 +161,7 @@ export function attachController(engine) {
             .map(name => {const index=old.findIndex(p=>p.name===name);return index>=0 ? old.splice(index,1)[0] : {id:crypto.randomUUID(),name};});
         engine.state.masterParticipants.push(...excluded);
         engine.state.excludedIds=engine.state.excludedIds.filter(id=>engine.state.masterParticipants.some(p=>p.id===id));
-        engine.saveStateToLocalStorage();
+        if(!engine.playbackConfig)engine.saveStateToLocalStorage();
         publish();
     }
 
@@ -172,7 +173,7 @@ export function attachController(engine) {
         }
         hideWinnerCelebration();
         engine.spawnParticipants(true);
-        if (engine.stageEnvGroup.visible) engine.resetCrowdAndStage();
+        if (['single','individual','choices'].includes(engine.state.mode)) engine.resetCrowdAndStage();
         showToast('Peserta berhasil diterapkan ke arena!', 'success');
     }
 
@@ -184,7 +185,7 @@ export function attachController(engine) {
         }
         updateNames(engine.shuffleArray(engine.state.masterParticipants.filter(p=>!engine.state.excludedIds.includes(p.id))).map(person => person.name).join('\n'));
         engine.spawnParticipants(true);
-        if (engine.stageEnvGroup.visible) engine.resetCrowdAndStage();
+        if (['single','individual','choices'].includes(engine.state.mode)) engine.resetCrowdAndStage();
         showToast('Urutan peserta diacak!', 'success');
     }
 
@@ -194,15 +195,17 @@ export function attachController(engine) {
         if (!person) return;
         updateNames(engine.state.masterParticipants.filter(participant => participant.id !== id && !engine.state.excludedIds.includes(participant.id)).map(participant => participant.name).join('\n'));
         engine.spawnParticipants(true);
-        if (engine.stageEnvGroup.visible) engine.resetCrowdAndStage();
+        if (['single','individual','choices'].includes(engine.state.mode)) engine.resetCrowdAndStage();
         showToast(`"${person.name}" dihapus dari daftar.`, 'success');
     }
 
     function setGroupCount(count) {
         if (engine.state.isBusy || count === engine.state.groupCount) return;
-        engine.state.groupCount = Math.max(2, Math.min(8, count));
+        engine.state.groupCount = Math.max(2, Math.min(30, count));
         engine.rebuildGroupZones(engine.state.groupCount);
-        engine.saveStateToLocalStorage();
+        engine.spawnParticipants(false);
+        resetCamera();
+        if(!engine.playbackConfig)engine.saveStateToLocalStorage();
         engine.sfx.playPop(engine.state.groupCount - 2);
         publish();
     }
@@ -247,8 +250,9 @@ export function attachController(engine) {
         const materials = new Set();
         const textures = new Set();
         root.traverse(object => {
-            if (object.geometry) geometries.add(object.geometry);
-            if (object.material) materials.add(object.material);
+            // Pooled character resources are reused across respawns; never free them here.
+            if (object.geometry && !object.geometry.userData?.shared) geometries.add(object.geometry);
+            if (object.material && !object.material.userData?.shared) materials.add(object.material);
         });
         for (const geometry of geometries) geometry.dispose();
         for (const material of materials) {
@@ -259,7 +263,8 @@ export function attachController(engine) {
     }
 
     function initialize() {
-        engine.loadStateFromLocalStorage();
+        if(engine.playbackConfig) Object.assign(engine.state,engine.playbackConfig);
+        else engine.loadStateFromLocalStorage();
         engine.initMCCharacter();
         engine.rebuildGroupZones(engine.state.groupCount);
         selectMode(engine.initialMode || engine.state.mode, true);
@@ -282,6 +287,15 @@ export function attachController(engine) {
 
     engine.actions = {
         skipRace: () => engine.skipRace(),
+        skip: () => {
+            if(!engine.state.isBusy)return;
+            if(engine.state.mode==='race') {
+                if(engine.state.racePhase==='walking') {
+                    engine.participantEntities.forEach(p=>{p.pos.copy(p.waypoints.at(-1) || p.pos);p.meshParts.root.position.copy(p.pos);p.waypoints=[];p.isMoving=false});
+                    engine.finishRaceWalk();
+                } else engine.skipRace();
+            } else engine.skipAction?.();
+        },
         dismissChoiceResult: () => {engine.state.choicesWinner=null;publish();},
         initialize, dispose, start, selectMode, excludeWinner, resetExcluded, useSavedGroups, updateNames, applyNames, shuffleNames, deleteParticipant,
         setGroupCount, setRaceOption, toggleAudio, resetCamera, closeResults, showLastRaceResults, hideWinnerCelebration,

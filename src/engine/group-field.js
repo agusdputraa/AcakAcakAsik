@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import { fieldLayout } from './field-layout.js'
 
 export function attachGroupField(engine) {
     // Paving Block Court Builder
@@ -43,6 +44,8 @@ export function attachGroupField(engine) {
     const groupZonesContainer = new THREE.Group();
     engine.groupZoneData = [];
 
+    const fieldBase = new THREE.Group();
+    engine.fieldEnvGroup.add(fieldBase);
     function buildFieldBase() {
         const courtW = 34;
         const courtD = 24;
@@ -59,7 +62,7 @@ export function attachGroupField(engine) {
         pitch.userData.fallbackLayer = -2;
         pitch.position.y = 0.05;
         pitch.receiveShadow = true;
-        engine.fieldEnvGroup.add(pitch);
+        fieldBase.add(pitch);
 
         const curbMat = new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.65 });
         const curbCapMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.5 });
@@ -78,10 +81,10 @@ export function attachGroupField(engine) {
             curb.position.set(c.x, curbHeight / 2, c.z);
             curb.castShadow = true;
             curb.receiveShadow = true;
-            engine.fieldEnvGroup.add(curb);
+            fieldBase.add(curb);
             const cap = new THREE.Mesh(new THREE.BoxGeometry(c.w - 0.08, 0.06, c.d - 0.08), curbCapMat);
             cap.position.set(c.x, curbHeight + 0.02, c.z);
-            engine.fieldEnvGroup.add(cap);
+            fieldBase.add(cap);
         });
 
         engine.fieldEnvGroup.add(groupZonesContainer);
@@ -125,20 +128,13 @@ export function attachGroupField(engine) {
         }
         engine.groupZoneData = [];
 
-        const layouts = {
-            1: [[0, 0]],
-            2: [[-9.5, 0], [9.5, 0]],
-            3: [[-10, -5.2], [10, -5.2], [0, 6.2]],
-            4: [[-10, -5.5], [10, -5.5], [-10, 5.5], [10, 5.5]],
-            5: [[-10.5, -5.5], [0, -6.2], [10.5, -5.5], [-7.5, 5.8], [7.5, 5.8]],
-            6: [[-10.5, -5.5], [0, -5.5], [10.5, -5.5], [-10.5, 5.5], [0, 5.5], [10.5, 5.5]],
-            7: [[-11, -5.6], [-3.7, -5.6], [3.7, -5.6], [11, -5.6], [-9, 5.8], [0, 5.8], [9, 5.8]],
-            8: [[-11.2, -5.6], [-3.8, -5.6], [3.8, -5.6], [11.2, -5.6], [-11.2, 5.6], [-3.8, 5.6], [3.8, 5.6], [11.2, 5.6]]
-        };
-
-        const coords = layouts[count] || layouts[4];
-        const boxW = count <= 4 ? 8.2 : (count <= 6 ? 7.2 : 6.1);
-        const boxD = count <= 2 ? 12.0 : 7.4;
+        const participants = Math.max(engine.participantEntities?.length || 0, engine.state.masterParticipants?.length || 0);
+        const layout = fieldLayout(count, participants);
+        engine.fieldLayout = layout;
+        fieldBase.scale.set(layout.width / 34, 1, layout.depth / 24);
+        fieldBase.position.z = layout.centerZ;
+        const coords = layout.centers;
+        const boxW = layout.size, boxD = layout.size;
 
         coords.forEach(([cx, cz], idx) => {
             const theme = engine.GROUP_PALETTE[idx % engine.GROUP_PALETTE.length];
@@ -172,7 +168,7 @@ export function attachGroupField(engine) {
             for (const border of [topB, botB, leftB, rightB]) border.userData.fallbackLayer = -1;
             zoneGroup.add(topB, botB, leftB, rightB);
 
-            const name = names[idx] || theme.name;
+            const name = names[idx] || `Kelompok ${idx + 1}`;
             const signTex = createSignTexture(name, theme.hex, Math.min(54, 640 / Math.max(12, name.length)));
             const signBoard = new THREE.Mesh(
                 new THREE.BoxGeometry(3.4, 0.95, 0.14),

@@ -14,14 +14,15 @@ function subscribe(callback) {
   return () => query.removeEventListener('change', callback)
 }
 
-export function ControlPanel({ view, actions, open, setOpen }) {
+export function ControlPanel({ locked, view, actions, open, setOpen }) {
   const mobile = useSyncExternalStore(subscribe, isMobile)
   const [tab, setTab] = useState('text')
   const { action, icon: ModeIcon } = modes[view.mode]
+  const effectiveView = locked ? { ...view, isBusy: true } : view
   const settings = actions && (
     <div className="settings-content">
-      <ModeSettings view={view} actions={actions} />
-      {!['race','topics','choices'].includes(view.mode) && <ParticipantPanel view={view} actions={actions} tab={tab} onTabChange={setTab} />}
+      <ModeSettings view={effectiveView} actions={actions} />
+      {!['race','topics','choices'].includes(view.mode) && <ParticipantPanel view={effectiveView} actions={actions} tab={tab} onTabChange={setTab} />}
     </div>
   )
 
@@ -34,10 +35,10 @@ export function ControlPanel({ view, actions, open, setOpen }) {
     )
   }
 
-  const startButton = view.mode === 'race' && view.racePhase === 'running' ? (
-    <Button type="button" className="start-button" onClick={()=>actions?.skipRace()} disabled={!actions}><SkipForward/>Skip ke hasil</Button>
+  const startButton = view.isBusy ? (
+    <Button type="button" className="start-button" onClick={()=>actions?.skip()} disabled={!actions}><SkipForward/>{view.mode==='race' && view.racePhase==='walking'?'Lewati perjalanan':'Skip ke hasil'}</Button>
   ) : (
-    <Button type="button" onClick={() => actions?.start()} disabled={!actions || view.isBusy} className="start-button">
+    <Button type="button" onClick={() => actions?.start()} disabled={!actions || view.isBusy || locked==='complete'} className="start-button">
       <ModeIcon />{view.isBusy ? (view.mode==='choices'?'Sedang mengacak…':'Sedang berjalan…') : view.mode === 'race' ? (view.racePhase === 'ready' ? 'Mulai lari' : 'Pergi ke lapangan') : action}
     </Button>
   )

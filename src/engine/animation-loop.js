@@ -63,6 +63,13 @@ export function attachAnimationLoop(engine) {
             }
         }
 
+        if(engine.playbackConfig) {
+            engine.renderPlayback();
+            engine.controls.update();
+            engine.renderer.render(engine.scene,engine.camera);
+            engine.updateFloatingLabels();
+            return;
+        }
         let anyParticipantStillRunning = false;
         for (let i = 0; i < engine.participantEntities.length; i++) {
             if (engine.state.mode === 'race' && engine.state.raceActive && !engine.participantEntities[i].celebrating) continue;
@@ -93,7 +100,7 @@ export function attachAnimationLoop(engine) {
         if (engine.state.mode === 'topics') engine.updateTopicSimulation(anyParticipantStillRunning);
         if (engine.state.mode === 'choices') engine.updateChoiceSimulation(dt);
 
-        if (engine.mcEntity && (engine.stageEnvGroup.visible || engine.state.mode === 'race')) {
+        if (engine.mcEntity && engine.mcEntity.meshParts.root.visible) {
             updateCharacterLocomotion(engine.mcEntity, dt, elapsedTime);
         }
 

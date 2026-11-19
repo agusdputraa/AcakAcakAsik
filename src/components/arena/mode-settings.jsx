@@ -17,9 +17,9 @@ function GroupSettings({ view, actions }) {
       </div>
       <div className="flex items-center gap-3">
         <Button type="button" size="icon-sm" variant="outline" aria-label="Kurangi jumlah kelompok" disabled={view.isBusy || view.groupCount <= 2} onClick={() => actions.setGroupCount(view.groupCount - 1)}><Minus /></Button>
-        <Slider aria-labelledby="group-count-label" aria-label="Jumlah kelompok" min={2} max={8} step={1} value={[view.groupCount]} disabled={view.isBusy}
+        <Slider aria-labelledby="group-count-label" aria-label="Jumlah kelompok" min={2} max={30} step={1} value={[view.groupCount]} disabled={view.isBusy}
           onValueChange={([count]) => actions.setGroupCount(count)} />
-        <Button type="button" size="icon-sm" variant="outline" aria-label="Tambah jumlah kelompok" disabled={view.isBusy || view.groupCount >= 8} onClick={() => actions.setGroupCount(view.groupCount + 1)}><Plus /></Button>
+        <Button type="button" size="icon-sm" variant="outline" aria-label="Tambah jumlah kelompok" disabled={view.isBusy || view.groupCount >= 30} onClick={() => actions.setGroupCount(view.groupCount + 1)}><Plus /></Button>
       </div>
     </section>
   )
@@ -38,7 +38,7 @@ function RaceSettings({view,actions}) {
       <SelectTrigger className="w-full" aria-label={"Jenis daftar " + (view.mode==='topics'?'Topik':'Urutan')}><SelectValue/></SelectTrigger>
       <SelectContent><SelectItem value="only-groups">Hanya Kelompok</SelectItem><SelectItem value="group-members">Kelompok dan Anggota</SelectItem><SelectItem value="individual">Individu</SelectItem></SelectContent>
     </Select>
-    {view.raceListType==='only-groups' && <label className="grid gap-2 text-sm">Jumlah kelompok (2–12)<input className="arena-input" type="number" min="2" max="12" disabled={view.isBusy} value={view.raceGroupCount} onChange={e=>set('raceGroupCount',e.target.value)}/><small>3 anggota per kelompok, dengan warna baju yang sama.</small></label>}
+    {view.raceListType==='only-groups' && <label className="grid gap-2 text-sm">Jumlah kelompok (2–30)<input className="arena-input" type="number" min="2" max="30" disabled={view.isBusy} value={view.raceGroupCount} onChange={e=>set('raceGroupCount',e.target.value)}/><small>3 anggota per kelompok, dengan warna baju yang sama.</small></label>}
     {view.raceListType==='individual' && <label className="grid gap-2 text-sm">Nama peserta, satu per baris<Textarea value={view.raceNames} disabled={view.isBusy} onChange={e=>set('raceNames',e.target.value)} rows={6}/></label>}
     {view.raceListType==='group-members' && <>
       <Button variant="outline" size="sm" disabled={view.isBusy || !view.hasSavedGroups} onClick={actions.useSavedGroups}>Gunakan hasil Grup terakhir</Button>
@@ -51,7 +51,7 @@ function RaceSettings({view,actions}) {
       </Tabs>
       {parsed.error ? <p role="alert" className="text-xs text-destructive">{parsed.error}</p> : <p className="text-xs text-muted-foreground">{parsed.groups.length} kelompok · {parsed.groups.reduce((n,g)=>n+g.members.length,0)} anggota terdeteksi</p>}
     </>}
-    {view.mode==='race' && <><label className="grid gap-2 text-sm">Jumlah lap (1–10)<input className="arena-input" type="number" min="1" max="10" disabled={view.isBusy} value={view.laps} onChange={e=>set('laps',e.target.value)}/></label>
+    {view.mode==='race' && <><label className="grid gap-2 text-sm">Jumlah lap (1–30)<input className="arena-input" type="number" min="1" max="30" disabled={view.isBusy} value={view.laps} onChange={e=>set('laps',e.target.value)}/></label>
     <p className="text-xs text-muted-foreground">Kecepatan setiap anggota diacak ulang tiap balapan. Kelompok finis ketika anggota terakhir menyelesaikan semua lap. Kelompok dengan anggota lebih banyak secara alami lebih sulit finis lebih awal.</p>
     {view.hasRaceResults && <Button variant="outline" onClick={actions.showLastRaceResults}>Lihat hasil balap terakhir</Button>}</>}
   </section>
@@ -63,7 +63,7 @@ export function ModeSettings({view,actions}) {
     {view.mode==='topics' && <section className="mode-settings grid gap-3">
       <h3 className="text-sm font-bold">Topik tujuan</h3>
       <label className="grid gap-2 text-sm">Nama topik, satu per baris<Textarea rows={5} disabled={view.isBusy} value={view.topicsText} onChange={e=>actions.setRaceOption('topicsText',e.target.value)}/></label>
-      <p className="text-xs text-muted-foreground">Masukkan 1–8 topik berbeda. Kelompok tetap utuh. Topik dibagikan secara acak dan merata; satu topik dapat diterima beberapa kelompok atau individu. Daftar peserta digunakan bersama kategori Urutan.</p>
+      <p className="text-xs text-muted-foreground">Masukkan 1–30 topik berbeda. Kelompok tetap utuh. Topik dibagikan secara acak dan merata; satu topik dapat diterima beberapa kelompok atau individu. Daftar peserta digunakan bersama kategori Urutan.</p>
     </section>}
     {view.mode==='choices' && <section className="mode-settings grid gap-3">
       <h3 className="text-sm font-bold">Daftar pilihan</h3>

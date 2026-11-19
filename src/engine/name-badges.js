@@ -8,7 +8,7 @@ export function attachNameBadges(engine) {
         const el = document.createElement('div');
         el.className = isMC
             ? 'name-badge px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950 font-extrabold text-[11px] shadow-md border border-white max-w-[240px] whitespace-nowrap'
-            : 'name-badge px-2.5 py-0.5 rounded-full bg-slate-900/80 text-white font-bold text-[11px] shadow-sm border border-white/25 backdrop-blur-xs max-w-[120px] truncate';
+            : 'name-badge px-2.5 py-0.5 rounded-full bg-slate-900/90 text-white font-bold text-[11px] shadow-sm border border-white/25 max-w-[120px] truncate';
         el.textContent = name;
         labelsContainer.appendChild(el);
         return el;
@@ -16,7 +16,7 @@ export function attachNameBadges(engine) {
 
     function resetBadgeStyle(entity) {
         if (!entity || !entity.labelEl) return;
-        entity.labelEl.className = 'name-badge px-2.5 py-0.5 rounded-full bg-slate-900/80 text-white font-bold text-[11px] shadow-sm border border-white/25 backdrop-blur-xs max-w-[120px] truncate';
+        entity.labelEl.className = 'name-badge px-2.5 py-0.5 rounded-full bg-slate-900/90 text-white font-bold text-[11px] shadow-sm border border-white/25 max-w-[120px] truncate';
     }
 
     function highlightBadge(entity, active, isWinner = false) {
@@ -44,7 +44,10 @@ export function attachNameBadges(engine) {
         engine.participantEntities.forEach(p => {
             if (!p.labelEl) return;
             if (p.isAudience || !p.meshParts.root.visible) {
-                p.labelEl.style.opacity = '0';
+                if (p._labelVisible !== false) {
+                    p.labelEl.style.opacity = '0';
+                    p._labelVisible = false;
+                }
                 return;
             }
             tempProjVec.copy(p.meshParts.root.position);
@@ -52,30 +55,53 @@ export function attachNameBadges(engine) {
             tempProjVec.project(engine.camera);
 
             if (tempProjVec.z < -1 || tempProjVec.z > 1 || Math.abs(tempProjVec.x) > 1 || Math.abs(tempProjVec.y) > 1) {
-                p.labelEl.style.opacity = '0';
+                if (p._labelVisible !== false) {
+                    p.labelEl.style.opacity = '0';
+                    p._labelVisible = false;
+                }
                 return;
             }
             const x = (tempProjVec.x * halfW) + halfW;
             const y = -(tempProjVec.y * halfH) + halfH;
-            p.labelEl.style.opacity = '1';
-            p.labelEl.style.left = `${x.toFixed(1)}px`;
-            p.labelEl.style.top = `${y.toFixed(1)}px`;
+            if (p._labelVisible !== true) {
+                p.labelEl.style.opacity = '1';
+                p._labelVisible = true;
+            }
+            if (Math.abs(x - (p._lastLabelX || 0)) > 0.4 || Math.abs(y - (p._lastLabelY || 0)) > 0.4) {
+                p.labelEl.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) translate(-50%, -100%)`;
+                p._lastLabelX = x;
+                p._lastLabelY = y;
+            }
         });
 
         if (engine.mcEntity && engine.mcEntity.labelEl) {
-            if (!(engine.stageEnvGroup.visible || engine.state.mode === 'race')) {
-                engine.mcEntity.labelEl.style.opacity = '0';
+            const mc = engine.mcEntity;
+            if (!mc.meshParts.root.visible) {
+                if (mc._labelVisible !== false) {
+                    mc.labelEl.style.opacity = '0';
+                    mc._labelVisible = false;
+                }
             } else {
-                tempProjVec.copy(engine.mcEntity.meshParts.root.position);
+                tempProjVec.copy(mc.meshParts.root.position);
                 tempProjVec.y += 2.55;
                 tempProjVec.project(engine.camera);
-                if (tempProjVec.z > 1) engine.mcEntity.labelEl.style.opacity = '0';
-                else {
+                if (tempProjVec.z > 1 || tempProjVec.z < -1 || Math.abs(tempProjVec.x) > 1 || Math.abs(tempProjVec.y) > 1) {
+                    if (mc._labelVisible !== false) {
+                        mc.labelEl.style.opacity = '0';
+                        mc._labelVisible = false;
+                    }
+                } else {
                     const x = (tempProjVec.x * halfW) + halfW;
                     const y = -(tempProjVec.y * halfH) + halfH;
-                    engine.mcEntity.labelEl.style.opacity = '1';
-                    engine.mcEntity.labelEl.style.left = `${x.toFixed(1)}px`;
-                    engine.mcEntity.labelEl.style.top = `${y.toFixed(1)}px`;
+                    if (mc._labelVisible !== true) {
+                        mc.labelEl.style.opacity = '1';
+                        mc._labelVisible = true;
+                    }
+                    if (Math.abs(x - (mc._lastLabelX || 0)) > 0.4 || Math.abs(y - (mc._lastLabelY || 0)) > 0.4) {
+                        mc.labelEl.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) translate(-50%, -100%)`;
+                        mc._lastLabelX = x;
+                        mc._lastLabelY = y;
+                    }
                 }
             }
         }

@@ -51,7 +51,8 @@ export function attachRace(engine) {
     }
     function skipRace() {
         const s=engine.state;
-        if(s.mode!=='race' || !s.raceActive || s.racePhase!=='running')return;
+        if(s.mode!=='race' || !['running','countdown'].includes(s.racePhase))return;
+        s.raceActive=true;
         engine.clearSimulationTimers();
         s.countdown=null;
         // Advance the existing plan; never draw new speeds or select a new winner.

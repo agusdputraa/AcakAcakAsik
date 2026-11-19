@@ -12,9 +12,10 @@ export function attachParticipants(engine) {
 
     function getInitialFormationPosition(index, total, mode) {
         if (mode === 'groups' || mode === 'topics') {
-            const angle = (index / Math.max(total, 1)) * Math.PI * 2;
-            const radius = 2.0 + (index % 3) * 1.15;
-            return new THREE.Vector3(Math.cos(angle) * radius, 0.12, Math.sin(angle) * radius);
+            const cols = Math.max(1, Math.ceil(Math.sqrt(total)));
+            const row = Math.floor(index / cols), col = index % cols;
+            const spacing = Math.min(1.8, 22 / cols);
+            return new THREE.Vector3((col - (cols - 1) / 2) * spacing, .12, (engine.fieldLayout?.waitingZ || 25) + row * spacing);
         } else if (mode === 'race') {
             // Line up near the start line before lanes are assigned.
             const spacingX = 2.2;

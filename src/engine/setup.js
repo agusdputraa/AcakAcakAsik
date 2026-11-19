@@ -7,7 +7,7 @@ export function attachSetup(engine) {
     const canvasContainer = engine.surfaces.canvas;
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0xbae6fd);
-    scene.fog = new THREE.FogExp2(0xbae6fd, 0.0085);
+    scene.fog = new THREE.FogExp2(0xbae6fd, 0.0011);
 
     const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 200);
     camera.position.set(0, 22, 26);
@@ -25,7 +25,7 @@ export function attachSetup(engine) {
         }
     }
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.outputEncoding = THREE.sRGBEncoding;
@@ -62,8 +62,8 @@ export function attachSetup(engine) {
     const dirLight = new THREE.DirectionalLight(0xfffbeb, 0.95);
     dirLight.position.set(18, 32, 20);
     dirLight.castShadow = true;
-    dirLight.shadow.mapSize.width = 2048;
-    dirLight.shadow.mapSize.height = 2048;
+    dirLight.shadow.mapSize.width = 1024;
+    dirLight.shadow.mapSize.height = 1024;
     dirLight.shadow.camera.near = 2;
     dirLight.shadow.camera.far = 90;
     const dShadow = 28;
@@ -79,7 +79,7 @@ export function attachSetup(engine) {
     fillLight.position.set(-16, 12, -8);
     scene.add(fillLight);
 
-    const groundGeo = new THREE.CylinderGeometry(80, 80, 1, 48);
+    const groundGeo = new THREE.CylinderGeometry(1000, 1000, 1, 48);
     const groundMat = new THREE.MeshStandardMaterial({ color: 0x91ba81, roughness: 0.88 });
     const groundMesh = new THREE.Mesh(groundGeo, groundMat);
     groundMesh.userData.fallbackGround = true;

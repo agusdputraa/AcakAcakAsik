@@ -64,7 +64,7 @@ export function attachRaceTrack(engine) {
     }
     function resetRaceCamera() {
         const waiting=engine.state.raceCameraView !== 'track';
-        engine.controls.maxDistance=100;engine.camera.far=220;engine.camera.updateProjectionMatrix();
+        engine.controls.maxDistance=engine.activateWorld?850:100;engine.camera.far=engine.activateWorld?1500:220;engine.camera.updateProjectionMatrix();
         // The same low oblique view as the raffle plaza; the track preset is
         // a close rear view anchored to the start/finish instead of a runner.
         const target=waiting ? new THREE.Vector3(-10,1,24.5) : new THREE.Vector3(0,1.1,CIRCUIT_Z);

@@ -1,3 +1,5 @@
+import { attachLiveRecording } from './live-recording.js'
+import { attachWorld } from './world.js'
 import { attachParkScenery } from './park-scenery.js'
 import { attachChoiceStage } from './choice-stage.js'
 import { attachChoices } from './choice-model.js'
@@ -45,6 +47,8 @@ export function createArenaEngine(options) {
     attachChoices(engine);
     attachAnimationLoop(engine);
     attachController(engine);
+    attachWorld(engine);
+    attachLiveRecording(engine);
     engine.actions.initialize();
     return engine.actions;
 }

@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { modes } from './modes'
 
-export function ArenaHeader({ view, actions, onCamera, onResults, hasResults }) {
+export function ArenaHeader({ locked, view, actions, onCamera, onResults, hasResults }) {
   const active = modes[view.mode]
   const ModeIcon = active.icon
   const AudioIcon = view.muted ? VolumeX : Volume2
@@ -16,7 +16,7 @@ export function ArenaHeader({ view, actions, onCamera, onResults, hasResults }) 
 
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" disabled={!actions || view.isBusy} className="mode-button">
+          <Button variant="outline" disabled={!actions || view.isBusy || locked} className="mode-button">
             <ModeIcon aria-hidden="true" />
             <span>{active.label}</span>
             <ChevronDown className="opacity-50" aria-hidden="true" />

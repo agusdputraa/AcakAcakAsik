@@ -67,11 +67,13 @@
   #fireworks-canvas { @apply pointer-events-none z-30; }
   .name-badge {
     position: absolute;
+    left: 0;
+    top: 0;
     transform: translate(-50%, -100%);
     white-space: nowrap;
     pointer-events: none;
     transition: opacity 0.15s ease;
-    will-change: left, top;
+    will-change: transform, opacity;
   }
   .arena-header {
     @apply pointer-events-none fixed inset-x-0 top-0 z-20 grid grid-cols-[1fr_auto_1fr] items-start gap-3 p-4 sm:p-6;
@@ -206,3 +208,6 @@
 
 .race-camera-shortcuts{position:fixed;z-index:30;top:114px;left:50%;transform:translateX(-50%);display:flex;gap:6px;padding:5px;border-radius:14px;background:#ffffffe6;box-shadow:0 4px 16px #213b2518;}
 @media(max-width:767px){.race-camera-shortcuts{top:110px;}}
+
+@media(min-width:768px){.desktop-left-rail{grid-template-rows:auto minmax(0,1fr);}}
+@media(max-width:767px){.live-share-trigger{position:fixed;top:78px;left:16px;z-index:25;background:var(--background);}}

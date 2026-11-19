@@ -18,7 +18,7 @@ export function ArenaOverlays({ view, onDismissWinner, actions }) {
         <section className="winner-banner celebration-banner" role="status" aria-label="Pilihan terpilih">
           <Trophy className="text-amber-500" aria-hidden="true"/>
           <div><p>Pilihan terpilih</p><strong className="break-words">{view.choicesWinner}</strong></div>
-          <Button size="sm" onClick={()=>actions?.start()}>Acak lagi</Button>
+          <Button size="sm" disabled={view.liveLocked} onClick={()=>actions?.start()}>Acak lagi</Button>
           <Button variant="outline" size="sm" onClick={()=>actions?.dismissChoiceResult()}>Tutup</Button>
         </section>
       )}
@@ -26,7 +26,7 @@ export function ArenaOverlays({ view, onDismissWinner, actions }) {
         <section className="winner-banner celebration-banner" aria-label="Orang terpilih">
           <Trophy className="text-amber-500" aria-hidden="true" />
           <div><p>Orang terpilih</p><strong>{view.winner.name}</strong></div>
-          <Button size="sm" disabled={view.excludedIds?.includes(view.winner.id)} onClick={actions?.excludeWinner}>{view.excludedIds?.includes(view.winner.id) ? 'Sudah dikeluarkan' : 'Keluarkan dari daftar'}</Button><Button variant="outline" size="sm" onClick={actions?.resetExcluded}>Reset</Button><Button type="button" variant="outline" size="sm" onClick={onDismissWinner}>Tutup</Button>
+          <Button size="sm" disabled={view.liveLocked || view.excludedIds?.includes(view.winner.id)} onClick={actions?.excludeWinner}>{view.excludedIds?.includes(view.winner.id) ? 'Sudah dikeluarkan' : 'Keluarkan dari daftar'}</Button><Button variant="outline" size="sm" disabled={view.liveLocked} onClick={actions?.resetExcluded}>Reset</Button><Button type="button" variant="outline" size="sm" onClick={onDismissWinner}>Tutup</Button>
         </section>
       )}
     </>

@@ -1,7 +1,8 @@
-import { HomePage } from '@/components/home/home-page'
+import { ArenaSurfaces } from '@/components/arena/arena-surfaces'
+import { SharePanel } from '@/live/share-panel'
 import { modes } from '@/components/arena/modes'
 import { CameraPanel } from '@/components/arena/camera-panel'
-import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { toast } from 'sonner'
 import { ArenaHeader } from '@/components/arena/arena-header'
 import { ArenaOverlays } from '@/components/arena/arena-overlays'
@@ -9,6 +10,9 @@ import { ControlPanel } from '@/components/arena/control-panel'
 import { ResultsDialog } from '@/components/arena/results-dialog'
 import { Toaster } from '@/components/ui/sonner'
 import '@/styles/app.css'
+
+const WatchPage = lazy(() => import('@/live/watch-page').then(m => ({ default: m.WatchPage })))
+const HomePage = lazy(() => import('@/components/home/home-page').then(m => ({ default: m.HomePage })))
 
 const initialView = {
   mode: 'groups', participants: [], status: 'Menyiapkan arena…',
@@ -19,8 +23,20 @@ const subscribeRoute = callback => { window.addEventListener('hashchange',callba
 const getRoute = () => window.location.hash
 export default function App() {
   const route = useSyncExternalStore(subscribeRoute,getRoute)
+  const watch = route.match(/^#watch\/([a-f0-9]{32})$/)
+  if(watch) {
+    return (
+      <Suspense fallback={<div className="grid min-h-dvh place-content-center bg-background text-sm text-muted-foreground">Memuat tayangan…</div>}>
+        <WatchPage key={watch[1]} id={watch[1]}/>
+      </Suspense>
+    )
+  }
   const mode = route.startsWith('#arena/') ? route.slice(7) : null
-  return mode && modes[mode] ? <ArenaApp key={mode} initialMode={mode}/> : <HomePage/>
+  return (
+    <Suspense fallback={<div className="grid min-h-dvh place-content-center bg-background text-sm text-muted-foreground">Memuat arena…</div>}>
+      {mode && modes[mode] ? <ArenaApp key={mode} initialMode={mode}/> : <HomePage/>}
+    </Suspense>
+  )
 }
 
 function ArenaApp({initialMode}) {
@@ -28,6 +44,7 @@ function ArenaApp({initialMode}) {
   const labels = useRef(null)
   const fireworks = useRef(null)
   const [view, setView] = useState(initialView)
+  const [liveLocked,setLiveLocked]=useState(false)
   const [actions, setActions] = useState(null)
   const [lastResult, setLastResult] = useState(null)
   const [resultsOpen, setResultsOpen] = useState(false)
@@ -67,14 +84,13 @@ function ArenaApp({initialMode}) {
 
   return (
     <main className="arena-app">
-      <div id="canvas-container" ref={canvas} aria-label="Arena permainan" />
-      <div id="labels-container" ref={labels} aria-hidden="true" />
-      <canvas id="fireworks-canvas" ref={fireworks} aria-hidden="true" />
-      <ArenaHeader view={view} actions={actions} onCamera={()=>setCameraOpen(true)} onResults={()=>setResultsOpen(true)} hasResults={!!lastResult} />
+      <ArenaSurfaces canvasRef={canvas} labelsRef={labels} fireworksRef={fireworks} label="Arena permainan" />
+      <ArenaHeader locked={!!liveLocked} view={view} actions={actions} onCamera={()=>setCameraOpen(true)} onResults={()=>setResultsOpen(true)} hasResults={!!lastResult} />
 
-      <ArenaOverlays actions={actions} view={view} onDismissWinner={() => actions?.hideWinnerCelebration()} />
+      <ArenaOverlays actions={actions} view={{...view,liveLocked:!!liveLocked}} onDismissWinner={() => actions?.hideWinnerCelebration()} />
       <div className="desktop-left-rail">
-        <ControlPanel view={view} actions={actions} open={settingsOpen} setOpen={setSettingsOpen} />
+        <SharePanel actions={actions} view={view} onLock={setLiveLocked}/>
+        <ControlPanel locked={liveLocked} view={view} actions={actions} open={settingsOpen} setOpen={setSettingsOpen} />
       </div>
       <CameraPanel view={view} actions={actions} open={cameraOpen} setOpen={setCameraOpen}/>
       <footer className="developer-credit">© {new Date().getFullYear()} · Developed by Agus Dzuriana</footer>
