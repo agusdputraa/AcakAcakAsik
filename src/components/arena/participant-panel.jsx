@@ -19,15 +19,16 @@ export function ParticipantPanel({ view, actions, tab, onTabChange }) {
         </TabsList>
         <TabsContent value="text" className="mt-2 grid gap-2.5">
           <Textarea id="participant-names" aria-label="Nama peserta" placeholder="Tulis satu nama per baris" value={view.rawText}
-            onChange={event => actions.updateNames(event.target.value)} disabled={view.isBusy} rows={5} className="max-h-56 min-h-28 text-base sm:text-sm" />
+            onChange={event => actions.updateNames(event.target.value)} disabled={view.isBusy || view.liveLocked} rows={5} className="max-h-56 min-h-28 text-base sm:text-sm" />
           <div className="flex flex-wrap gap-2">
-            <Button type="button" size="sm" variant="outline" disabled={view.isBusy} onClick={actions.applyNames}>
+            <Button type="button" size="sm" variant="outline" disabled={view.isBusy || view.liveLocked} onClick={actions.applyNames}>
               <Check /> Terapkan ke Arena
             </Button>
-            <Button type="button" size="sm" variant="ghost" disabled={view.isBusy} onClick={actions.shuffleNames}>
+            <Button type="button" size="sm" variant="ghost" disabled={view.isBusy || view.liveLocked} onClick={actions.shuffleNames}>
               <Shuffle /> Acak Urutan
             </Button>
           </div>
+          {view.liveLocked && <p className="text-xs text-muted-foreground">Daftar nama utama dikunci selama siaran langsung. Anda tetap dapat mengeluarkan pemenang dari tombol panggung.</p>}
         </TabsContent>
         <TabsContent value="table" className="mt-2 max-h-52 overflow-y-auto rounded-lg border">
           <Table>
@@ -39,7 +40,7 @@ export function ParticipantPanel({ view, actions, tab, onTabChange }) {
                   <TableCell className="whitespace-normal break-all font-medium">{person.name}</TableCell>
                   <TableCell className="text-right">
                     <Button type="button" variant="ghost" size="icon-sm" aria-label={`Hapus ${person.name}`} title={`Hapus ${person.name}`}
-                      className="text-destructive" disabled={view.isBusy} onClick={() => actions.deleteParticipant(person.id)}><Trash2 /></Button>
+                      className="text-destructive" disabled={view.isBusy || view.liveLocked} onClick={() => actions.deleteParticipant(person.id)}><Trash2 /></Button>
                   </TableCell>
                 </TableRow>
               ))}

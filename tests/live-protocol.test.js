@@ -19,3 +19,7 @@ test('recorded chronology and pose data reject malformed or oversized events',()
     assert.throws(()=>validateChunk({seq:0,frames:[{...frame,winner:{name:{bad:true}}}],done:false}))
     assert.throws(()=>validateChunk({seq:0,frames:[{...frame,people:[[NaN]]}],done:false}))
 })
+test('excluded participants produce valid hidden poses with scale 0',()=>{
+    const frame={t:500,people:[[0,.1,1,0,2,1,0,1,0],[0,-100,0,0,0,0,0,0,0]],camera:[0,22,26,0,0,0],status:'Orang terpilih: Ayu!',busy:false,winner:{id:'p1',name:'Ayu'}}
+    assert.equal(validateChunk({seq:0,frames:[frame],done:false}),500)
+})

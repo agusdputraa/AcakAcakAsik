@@ -31,7 +31,9 @@ export function createHostRecorder(actions,room,onChange) {
             const t=Math.min(MAX_DURATION,performance.now()-started)
             const frame=actions.captureFrame(t)
             sawBusy ||= frame.busy
-            const final=sawBusy && !frame.busy && frame.racePhase!=='ready' && (frame.result || frame.winner || frame.choicesWinner)
+            const isSingle = actions.exportLiveConfig?.()?.mode === 'single'
+            // In single mode, picking a winner does NOT stop the stream; host can exclude and draw again!
+            const final = sawBusy && !frame.busy && frame.racePhase!=='ready' && (!isSingle && (frame.result || frame.choicesWinner))
             const size=new TextEncoder().encode(JSON.stringify(frame)).length
             if(bytes+size>MAX_BYTES-16000 || t>=MAX_DURATION) {
                 stopped=true;finalPending=true
@@ -54,6 +56,11 @@ export function createHostRecorder(actions,room,onChange) {
             const count=actions.captureFrame(0)?.people?.length || 0;
             const sampleRate=count>60?350:(count>25?300:250);
             timer=setInterval(sample,sampleRate);
+        },
+        finish() {
+            if(finished || disposed)return;
+            finalPending=true;
+            sample();
         },
         dispose() {disposed=true;clearInterval(timer)},
         get finished(){return finished},

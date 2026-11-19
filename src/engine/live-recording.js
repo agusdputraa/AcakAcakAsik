@@ -7,8 +7,20 @@ const pose=(p,moving=p.isMoving)=>[...p.pos.toArray(),p.meshParts.root.rotation.
 export function attachLiveRecording(engine) {
     function captureFrame(t) {
         const s=engine.state
+        const isSingleOrGroups = ['single','individual','groups'].includes(s.mode)
+        let people
+        if (isSingleOrGroups && engine.state.masterParticipants?.length) {
+            const entityMap = new Map(engine.participantEntities.map(p => [p.id, p]))
+            people = engine.state.masterParticipants.map(mp => {
+                const p = entityMap.get(mp.id)
+                if (p) return pose(p, p.isMoving)
+                return [0, -100, 0, 0, 0, 0, 0, 0, 0]
+            })
+        } else {
+            people = engine.participantEntities.map(p=>pose(p,s.mode==='race' && s.raceActive?!p.celebrating:p.isMoving))
+        }
         return {
-            t:Math.round(t),people:engine.participantEntities.map(p=>pose(p,s.mode==='race' && s.raceActive?!p.celebrating:p.isMoving)),host:engine.mcEntity?pose(engine.mcEntity):null,
+            t:Math.round(t),people,host:engine.mcEntity?pose(engine.mcEntity):null,
             camera:[...engine.camera.position.toArray(),...engine.controls.target.toArray()].map(rounded),
             status:s.status,busy:s.isBusy,racePhase:s.racePhase,countdown:s.countdown,
             result:s.result,winner:s.winner,choicesWinner:s.choicesWinner,

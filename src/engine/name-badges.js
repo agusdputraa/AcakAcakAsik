@@ -43,7 +43,7 @@ export function attachNameBadges(engine) {
 
         engine.participantEntities.forEach(p => {
             if (!p.labelEl) return;
-            if (p.isAudience || !p.meshParts.root.visible) {
+            if (p.isAudience || !p.meshParts.root.visible || p.meshParts.root.scale.x <= 0.05 || p.pos.y < -50) {
                 if (p._labelVisible !== false) {
                     p.labelEl.style.opacity = '0';
                     p._labelVisible = false;

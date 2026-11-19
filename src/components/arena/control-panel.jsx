@@ -18,7 +18,9 @@ export function ControlPanel({ locked, view, actions, open, setOpen }) {
   const mobile = useSyncExternalStore(subscribe, isMobile)
   const [tab, setTab] = useState('text')
   const { action, icon: ModeIcon } = modes[view.mode]
-  const effectiveView = locked ? { ...view, isBusy: true } : view
+  const isComplete = locked === 'complete'
+  const isLive = Boolean(locked)
+  const effectiveView = { ...view, isBusy: view.isBusy || isComplete, liveLocked: isLive }
   const settings = actions && (
     <div className="settings-content">
       <ModeSettings view={effectiveView} actions={actions} />
